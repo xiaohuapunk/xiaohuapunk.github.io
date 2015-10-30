@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   
-  <title>创建Github静态网站 | xiaohuapunk的博客</title>
+  <title>Alcatraz install | xiaohuapunk的博客</title>
   <meta name="author" content="xiaohuapunk">
   
   <meta name="description" content="学习总结 思考感悟 知识管理">
@@ -11,7 +11,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 
-  <meta property="og:title" content="创建Github静态网站"/>
+  <meta property="og:title" content="Alcatraz install"/>
   <meta property="og:site_name" content="xiaohuapunk的博客"/>
 
   
@@ -54,53 +54,50 @@
     <header>
       
         <div class="icon"></div>
-        <time datetime="2013-10-12T06:11:55.000Z"><a href="/2013/10/12/CreateGithubPages/">2013-10-12</a></time>
+        <time datetime="2015-10-30T09:14:34.000Z"><a href="/2015/10/30/Alcatraz/">2015-10-30</a></time>
       
       
   
-    <h1 class="title">创建Github静态网站</h1>
+    <h1 class="title">Alcatraz install</h1>
   
 
     </header>
     <div class="entry">
       
-        <p>简单几步创建Github个人网站</p>
+        <p>Alcatrza 插件管理工具的安装、与修复</p>
 <a id="more"></a>
-<ul>
-<li>1.登录<a href="https://github.com/" target="_blank" rel="external">Gitbub</a>（没账号的注册一个）点击 <code>+ New repository</code>，新建一个repository </li>
+<h3 id="安装、卸载">安装、卸载</h3><ul>
+<li><p>安装方法终端输入</p>
+<pre><code>mkdir -p <span class="regexp">~/Library/</span>Application\ Support<span class="regexp">/Developer/</span>Shared<span class="regexp">/Xcode/</span>Plug-ins; curl -L <span class="string">http:</span><span class="comment">//git.io/lOQWeA | tar xvz -C ~/Library/Application\ Support/Developer/Shared/Xcode/Plug-ins</span>
+</code></pre></li>
+<li><p>卸载方法</p>
+<pre><code>rm -rf <span class="regexp">~/Library/</span>Application\ Support<span class="regexp">/Developer/</span>Shared<span class="regexp">/Xcode/</span>Plug-ins/Alcatraz.xcplugin
+rm -rf <span class="regexp">~/Library/</span>Application\ Support/Alcatraz
+</code></pre></li>
 </ul>
-<p><img src="/images/CreateGithubPages/1.png" alt="图1"></p>
-<ul>
-<li>2.Repository name 需要命名为:<code>（你的github用户名).github.io</code></li>
+<h3 id="修复方式">修复方式</h3><ul>
+<li>查看Xcode UUID</li>
 </ul>
-<ul>
-<li>3.点击 <code>Create repository</code> 之后就创建好了一个 repository</li>
+<pre><code><span class="comment">/*
+  每次Xcode版本更新后会导致Alcatrza无法正常使用，原因是因为新版本Xcode的UUID发生了变化，只需要将新的UUID添加到插件库的配置文件中即可
+ */</span>
+查看Xcode UUID方法，在终端中输入: 
+defaults <span class="keyword">read</span> <span class="regexp">/Applications/</span>Xcode.app<span class="regexp">/Contents/I</span>nfo DVTPlugInCompatibilityUUID    
+</code></pre><ul>
+<li><p>方法一 (批处理修复方式)</p>
+<pre><code>在终端输入命令: 
+<span class="keyword">find</span> ~<span class="regexp">/Library/</span>Application\ Support<span class="regexp">/Developer/</span>Shared<span class="regexp">/Xcode/</span>Plug-ins -name Info.plist -maxdepth <span class="number">3</span> | xargs -I{} defaults <span class="keyword">write</span> {} DVTPlugInCompatibilityUUIDs -array-add 这里填写UUID
+</code></pre></li>
+<li><p>方法二 (手动添加UUID)</p>
+<pre><code><span class="number">1.</span> 进入到插件目录 ~/Library/Application Support/Developer/Shared/Xcode
+<span class="number">2.</span> 显示插件的包内容, 编辑Info.plist文件
+<span class="number">3.</span> 展开DVTPlugInCompatibilityUUIDs
+<span class="number">4.</span> 添加一个新的item：填写UUID    
+</code></pre></li>
+<li><p>最后重新启动Xcod</p>
+<pre><code><span class="comment">//Nothing</span>
+</code></pre></li>
 </ul>
-<p><img src="/images/CreateGithubPages/2.png" alt="图2"></p>
-<ul>
-<li>4.在页面右边点击 <code>Settings</code></li>
-</ul>
-<p><img src="/images/CreateGithubPages/3.png" alt="图3"></p>
-<ul>
-<li>5.滑到下面点击 <code>Launch automatic page generator</code></li>
-</ul>
-<p><img src="/images/CreateGithubPages/4.png" alt="图4"></p>
-<ul>
-<li>6.下面这个页面就是网页的编辑页面，可以设置title、body等等，内容编辑使用<a href="https://guides.github.com/features/mastering-markdown/" target="_blank" rel="external">Markdown</a>方式。</li>
-</ul>
-<p><img src="/images/CreateGithubPages/5.png" alt="图5"></p>
-<ul>
-<li><p>7.编辑页面后点击页面下方的 <code>Continue layouts</code></p>
-</li>
-<li><p>8.到这一步其实一个静态的页面已经创建成功，在最上面是可选的几个主题模板，点击：<code>Publish page</code> 发布页面。</p>
-</li>
-</ul>
-<p><img src="/images/CreateGithubPages/6.png" alt="图6"></p>
-<ul>
-<li>9.这时用之前的域名<code>http://username.github.io</code>就可以访问页面了。是不是超级简单！！！</li>
-</ul>
-<p><img src="/images/CreateGithubPages/7.png" alt="图7"></p>
-<p>end!</p>
 
       
     </div>
@@ -109,13 +106,13 @@
         
   
   <div class="categories">
-    <a href="/categories/教程/">教程</a>
+    <a href="/categories/tools/">tools</a>
   </div>
 
         
   
   <div class="tags">
-    <a href="/tags/教程/">教程</a>
+    <a href="/tags/iOS/">iOS</a>
   </div>
 
         
@@ -158,7 +155,7 @@
   }(document, 'script', 'facebook-jssdk'));
 </script>
 
-<div class="fb-comments" data-href="http://xiaohuapunk.github.io/2013/10/12/CreateGithubPages/index.html" data-num-posts="5" data-width="840" data-colorscheme="light"></div>
+<div class="fb-comments" data-href="http://xiaohuapunk.github.io/2015/10/30/Alcatraz/index.html" data-num-posts="5" data-width="840" data-colorscheme="light"></div>
       
   
 </section>
