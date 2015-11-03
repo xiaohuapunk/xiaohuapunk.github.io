@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   
-  <title>创建Github静态网站 | xiaohuapunk的博客</title>
+  <title>Swift-Tip | xiaohuapunk的博客</title>
   <meta name="author" content="xiaohuapunk">
   
   <meta name="description" content="学习总结 思考感悟 知识管理">
@@ -11,7 +11,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 
-  <meta property="og:title" content="创建Github静态网站"/>
+  <meta property="og:title" content="Swift-Tip"/>
   <meta property="og:site_name" content="xiaohuapunk的博客"/>
 
   
@@ -54,53 +54,72 @@
     <header>
       
         <div class="icon"></div>
-        <time datetime="2013-10-12T06:11:55.000Z"><a href="/2013/10/12/CreateGithubPages/">2013-10-12</a></time>
+        <time datetime="2015-11-02T06:43:42.000Z"><a href="/2015/11/02/Swift-Tip/">2015-11-02</a></time>
       
       
   
-    <h1 class="title">创建Github静态网站</h1>
+    <h1 class="title">Swift-Tip</h1>
   
 
     </header>
     <div class="entry">
       
-        <p>简单几步创建Github个人网站</p>
+        <p>Swift开发必备tip</p>
 <a id="more"></a>
+<p>Swift刚发布的时候，我就实践用swift写了一个项目（是公司的真实项目），当时swift给我的感觉就是语法的改变，更加精炼，当时用swift也只是简单的将oc代码用swift代替一下，其实swift的真正强大之处是 <code>新特性</code>，最近在看“喵神”写的<code>swifter_100个Swift开发必备Tip</code>，真的不错，主要讲了一些新特性，我一边学习一边会记录笔记。这里的绝大多数例子都是书中的例子，正在学习swift的同学强烈推荐你们看一下。</p>
+<h3 id="柯里化（Currying）">柯里化（Currying）</h3><hr>
 <ul>
-<li>1.登录<a href="https://github.com/" target="_blank" rel="external">Gitbub</a>（没账号的注册一个）点击 <code>+ New repository</code>，新建一个repository </li>
+<li><p>柯里化函数</p>
+<pre><code><span class="function"><span class="keyword">func</span> <span class="title">addTowNumbers</span><span class="params">(a: Int)</span><span class="params">(num: Int)</span> -&gt; <span class="title">Int</span> {</span>
+    <span class="keyword">return</span> a + num
+}
+</code></pre></li>
+<li><p>只传入第一个参数得到需要传入剩余参数的新的方法</p>
+<pre><code>let addTo4 = <span class="function"><span class="title">addTowNumbers</span><span class="params">(<span class="number">4</span>)</span></span>
+<span class="comment">// Int -&gt; Int</span>
+
+let add6 = <span class="function"><span class="title">addTo4</span><span class="params">(num: <span class="number">6</span>)</span></span>
+<span class="comment">// 10</span>
+
+let add7 = <span class="function"><span class="title">addTo4</span><span class="params">(num: <span class="number">7</span>)</span></span>
+<span class="comment">// 11</span>
+</code></pre></li>
 </ul>
-<p><img src="/images/CreateGithubPages/1.png" alt="图1"></p>
+<h3 id="@autoclosure">@autoclosure</h3><hr>
 <ul>
-<li>2.Repository name 需要命名为:<code>（你的github用户名).github.io</code></li>
+<li>@autoclosure 该方法的参数是接受一个函数</li>
 </ul>
+<pre><code>func logIfTrue<span class="function"><span class="params">(predicate: () -&gt; Bool)</span> {
+    <span class="title">if</span> <span class="title">predicate</span><span class="params">()</span> {
+        <span class="title">print</span><span class="params">(<span class="string">"is true"</span>)</span>
+    }
+}</span>
+</code></pre><ul>
+<li>不加 @autoclosure（{11 &gt; 2}）闭包的简写</li>
+</ul>
+<pre><code><span class="function"><span class="title">logIfTrue</span><span class="params">({<span class="number">11</span> &gt; <span class="number">2</span>})</span></span>
+</code></pre><ul>
+<li>添加 @autoclosure 关键字</li>
+</ul>
+<pre><code>func logIfTrue<span class="function"><span class="params">(<span class="property">@autoclosure</span> predicate: () -&gt; Bool)</span> {
+    <span class="title">if</span> <span class="title">predicate</span><span class="params">()</span> {
+        <span class="title">print</span><span class="params">(<span class="string">"is true"</span>)</span>
+    }
+}</span>
+</code></pre><ul>
+<li>加 @autoclosure（11 &gt; 2）部分会自动识别成闭包 语法更加简练</li>
+</ul>
+<pre><code><span class="function"><span class="title">logIfTrue</span><span class="params">(<span class="number">11</span> &gt; <span class="number">2</span>)</span></span>
+</code></pre><h3 id="??操作符">??操作符</h3><hr>
 <ul>
-<li>3.点击 <code>Create repository</code> 之后就创建好了一个 repository</li>
+<li><p>??操作符可以快速地对nil进行条件判断</p>
+<pre><code><span class="variable"><span class="keyword">var</span> level</span>: <span class="typename">Int</span>?
+<span class="variable"><span class="keyword">var</span> startLevel</span> = <span class="number">1</span>
+
+<span class="variable"><span class="keyword">var</span> currentLevel</span> = level ?? startLevel
+<span class="comment">// 因为level == nil 所以 currentLever = 1</span>
+</code></pre></li>
 </ul>
-<p><img src="/images/CreateGithubPages/2.png" alt="图2"></p>
-<ul>
-<li>4.在页面右边点击 <code>Settings</code></li>
-</ul>
-<p><img src="/images/CreateGithubPages/3.png" alt="图3"></p>
-<ul>
-<li>5.滑到下面点击 <code>Launch automatic page generator</code></li>
-</ul>
-<p><img src="/images/CreateGithubPages/4.png" alt="图4"></p>
-<ul>
-<li>6.下面这个页面就是网页的编辑页面，可以设置title、body等等，内容编辑使用<a href="https://guides.github.com/features/mastering-markdown/" target="_blank" rel="external">Markdown</a>方式。</li>
-</ul>
-<p><img src="/images/CreateGithubPages/5.png" alt="图5"></p>
-<ul>
-<li><p>7.编辑页面后点击页面下方的 <code>Continue layouts</code></p>
-</li>
-<li><p>8.到这一步其实一个静态的页面已经创建成功，在最上面是可选的几个主题模板，点击：<code>Publish page</code> 发布页面。</p>
-</li>
-</ul>
-<p><img src="/images/CreateGithubPages/6.png" alt="图6"></p>
-<ul>
-<li>9.这时用之前的域名<code>http://username.github.io</code>就可以访问页面了。是不是超级简单！！！</li>
-</ul>
-<p><img src="/images/CreateGithubPages/7.png" alt="图7"></p>
-<p>end!</p>
 
       
     </div>
@@ -109,13 +128,13 @@
         
   
   <div class="categories">
-    <a href="/categories/教程/">教程</a>
+    <a href="/categories/Swift/">Swift</a>
   </div>
 
         
   
   <div class="tags">
-    <a href="/tags/教程/">教程</a>
+    <a href="/tags/Swift/">Swift</a>
   </div>
 
         
@@ -158,7 +177,7 @@
   }(document, 'script', 'facebook-jssdk'));
 </script>
 
-<div class="fb-comments" data-href="http://xiaohuapunk.github.io/2013/10/12/CreateGithubPages/index.html" data-num-posts="5" data-width="840" data-colorscheme="light"></div>
+<div class="fb-comments" data-href="http://xiaohuapunk.github.io/2015/11/02/Swift-Tip/index.html" data-num-posts="5" data-width="840" data-colorscheme="light"></div>
       
   
 </section>

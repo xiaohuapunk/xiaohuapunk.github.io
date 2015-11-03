@@ -76,14 +76,13 @@ rm -rf <span class="regexp">~/Library/</span>Application\ Support/Alcatraz
 </code></pre></li>
 </ul>
 <h3 id="修复方式">修复方式</h3><ul>
-<li>查看Xcode UUID</li>
-</ul>
+<li><p>查看Xcode UUID</p>
 <pre><code><span class="comment">/*
   每次Xcode版本更新后会导致Alcatrza无法正常使用，原因是因为新版本Xcode的UUID发生了变化，只需要将新的UUID添加到插件库的配置文件中即可
  */</span>
 查看Xcode UUID方法，在终端中输入: 
 defaults <span class="keyword">read</span> <span class="regexp">/Applications/</span>Xcode.app<span class="regexp">/Contents/I</span>nfo DVTPlugInCompatibilityUUID    
-</code></pre><ul>
+</code></pre></li>
 <li><p>方法一 (批处理修复方式)</p>
 <pre><code>在终端输入命令: 
 <span class="keyword">find</span> ~<span class="regexp">/Library/</span>Application\ Support<span class="regexp">/Developer/</span>Shared<span class="regexp">/Xcode/</span>Plug-ins -name Info.plist -maxdepth <span class="number">3</span> | xargs -I{} defaults <span class="keyword">write</span> {} DVTPlugInCompatibilityUUIDs -array-add 这里填写UUID
@@ -174,7 +173,11 @@ defaults <span class="keyword">read</span> <span class="regexp">/Applications/</
   <h3 class="title">分类</h3>
   <ul class="entry">
   
-    <li><a href="/categories/tools/">tools</a><small>1</small></li>
+    <li><a href="/categories/PHP/">PHP</a><small>1</small></li>
+  
+    <li><a href="/categories/Swift/">Swift</a><small>1</small></li>
+  
+    <li><a href="/categories/tools/">tools</a><small>2</small></li>
   
     <li><a href="/categories/教程/">教程</a><small>2</small></li>
   
@@ -187,9 +190,13 @@ defaults <span class="keyword">read</span> <span class="regexp">/Applications/</
   <h3 class="title">标签</h3>
   <ul class="entry">
   
+    <li><a href="/tags/Swift/">Swift</a><small>1</small></li>
+  
     <li><a href="/tags/iOS/">iOS</a><small>1</small></li>
   
     <li><a href="/tags/教程/">教程</a><small>1</small></li>
+  
+    <li><a href="/tags/经验/">经验</a><small>1</small></li>
   
     <li><a href="/tags/经验分享/">经验分享</a><small>1</small></li>
   
