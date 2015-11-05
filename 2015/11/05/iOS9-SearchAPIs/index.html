@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   
-  <title>Alcatraz install | xiaohuapunk的博客</title>
+  <title>iOS9_SearchAPIs | xiaohuapunk的博客</title>
   <meta name="author" content="xiaohuapunk">
   
   <meta name="description" content="学习总结 思考感悟 知识管理">
@@ -11,7 +11,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 
-  <meta property="og:title" content="Alcatraz install"/>
+  <meta property="og:title" content="iOS9_SearchAPIs"/>
   <meta property="og:site_name" content="xiaohuapunk的博客"/>
 
   
@@ -54,49 +54,80 @@
     <header>
       
         <div class="icon"></div>
-        <time datetime="2015-10-30T09:14:34.000Z"><a href="/2015/10/30/Alcatraz/">2015-10-30</a></time>
+        <time datetime="2015-11-05T06:24:53.000Z"><a href="/2015/11/05/iOS9-SearchAPIs/">2015-11-05</a></time>
       
       
   
-    <h1 class="title">Alcatraz install</h1>
+    <h1 class="title">iOS9_SearchAPIs</h1>
   
 
     </header>
     <div class="entry">
       
-        <p>Alcatrza 插件管理工具的安装、与修复</p>
+        <p>Search APIs是iOS9之后苹果提供的接口，允许开发者定制应用的内容，索引起来供<code>Spotlight</code>进行搜索，同时可以设置在<code>Spotlight</code>中的显示效果（如：图片、描述），以及点击之后如何响应。</p>
 <a id="more"></a>
-<h3 id="安装、卸载">安装、卸载</h3><ul>
-<li><p>安装方法终端输入</p>
-<pre><code>mkdir -p <span class="regexp">~/Library/</span>Application\ Support<span class="regexp">/Developer/</span>Shared<span class="regexp">/Xcode/</span>Plug-ins; curl -L <span class="string">http:</span><span class="comment">//git.io/lOQWeA | tar xvz -C ~/Library/Application\ Support/Developer/Shared/Xcode/Plug-ins</span>
+<h3 id="调用Api创建可搜素的数据关键字在调用的文件中记得先_import_CoreSpotlight">调用Api创建可搜素的数据关键字在调用的文件中记得先 <code>import CoreSpotlight</code></h3><ul>
+<li><p>创建测试数据 一个宠物 肉肉  </p>
+<pre><code>let rourou = Pet<span class="list">(<span class="keyword">name</span>: <span class="string">"肉肉"</span>, pic: UIImage<span class="list">(<span class="keyword">named</span>: <span class="string">"rourou"</span>)</span>!)</span>
 </code></pre></li>
-<li><p>卸载方法</p>
-<pre><code>rm -rf <span class="regexp">~/Library/</span>Application\ Support<span class="regexp">/Developer/</span>Shared<span class="regexp">/Xcode/</span>Plug-ins/Alcatraz.xcplugin
-rm -rf <span class="regexp">~/Library/</span>Application\ Support/Alcatraz
+<li><p>可搜索的item集合  </p>
+<pre><code>var searchableItems = [<span class="link_label">CSSearchableItem</span>](<span class="link_url"></span>)
 </code></pre></li>
-</ul>
-<h3 id="修复方式">修复方式</h3><ul>
-<li><p>查看Xcode UUID</p>
-<pre><code><span class="comment">/*
-  每次Xcode版本更新后会导致Alcatrza无法正常使用，原因是因为新版本Xcode的UUID发生了变化，只需要将新的UUID添加到插件库的配置文件中即可
- */</span>
-查看Xcode UUID方法，在终端中输入: 
-defaults <span class="keyword">read</span> <span class="regexp">/Applications/</span>Xcode.app<span class="regexp">/Contents/I</span>nfo DVTPlugInCompatibilityUUID    
+<li><p>创建搜索属性  </p>
+<pre><code>let attributeSet = <span class="function"><span class="title">CSSearchableItemAttributeSet</span><span class="params">(itemContentType: <span class="string">"test"</span>)</span></span>
+attributeSet<span class="class">.title</span> = rourou<span class="class">.name</span>
+attributeSet<span class="class">.contentDescription</span> = <span class="string">"肉肉是一只可爱的加菲猫 “喵”"</span>
+attributeSet<span class="class">.thumbnailData</span> = <span class="function"><span class="title">UIImagePNGRepresentation</span><span class="params">(rourou.pic)</span></span>
 </code></pre></li>
-<li><p>方法一 (批处理修复方式)</p>
-<pre><code>在终端输入命令: 
-<span class="keyword">find</span> ~<span class="regexp">/Library/</span>Application\ Support<span class="regexp">/Developer/</span>Shared<span class="regexp">/Xcode/</span>Plug-ins -name Info.plist -maxdepth <span class="number">3</span> | xargs -I{} defaults <span class="keyword">write</span> {} DVTPlugInCompatibilityUUIDs -array-add 这里填写UUID
+<li><p>创建可搜索的item  </p>
+<pre><code>let item = <span class="function"><span class="title">CSSearchableItem</span><span class="params">(uniqueIdentifier: rourou.name, domainIdentifier: <span class="string">"com.xhy.test"</span>, attributeSet: attributeSet)</span></span>
+searchableItems.<span class="function"><span class="title">append</span><span class="params">(item)</span></span>
 </code></pre></li>
-<li><p>方法二 (手动添加UUID)</p>
-<pre><code><span class="number">1.</span> 进入到插件目录 ~/Library/Application Support/Developer/Shared/Xcode
-<span class="number">2.</span> 显示插件的包内容, 编辑Info.plist文件
-<span class="number">3.</span> 展开DVTPlugInCompatibilityUUIDs
-<span class="number">4.</span> 添加一个新的item：填写UUID    
-</code></pre></li>
-<li><p>最后重新启动Xcod</p>
-<pre><code><span class="comment">//Nothing</span>
+<li><p>将可搜索的item集合添加都索引中  </p>
+<pre><code>CSSearchableIndex.defaultSearchableIndex().indexSearchableItems(searchableItems, completionHandler: {
+    <span class="built_in">error</span> -&gt; Void <span class="keyword">in</span>
+    <span class="keyword">if</span> <span class="built_in">error</span> != <span class="keyword">nil</span> {
+        <span class="built_in">print</span>(<span class="built_in">error</span>?.localizedDescription)
+    }
+
+})  
 </code></pre></li>
 </ul>
+<h3 id="点击搜索的结果会打开App,回调方法">点击搜索的结果会打开App,回调方法</h3><ul>
+<li>回调方法 AppDeletate中调用此方法 记得先 <code>import CoreSpotlight</code></li>
+</ul>
+<pre><code>    <span class="func"><span class="keyword">func</span> <span class="title">application</span><span class="params">(application: UIApplication, continueUserActivity userActivity: NSUserActivity, restorationHandler: <span class="params">([AnyObject]?)</span></span></span> -&gt; <span class="type">Void</span>) -&gt; <span class="type">Bool</span> {
+    <span class="comment">// 拿到搜索的 标示 “肉肉”</span>
+    <span class="keyword">let</span> friendID = userActivity.userInfo?[<span class="string">"kCSSearchableItemActivityIdentifier"</span>] <span class="keyword">as</span>! <span class="type">String</span>
+
+    <span class="built_in">print</span>(friendID)
+
+    <span class="keyword">return</span> <span class="literal">true</span>
+}
+</code></pre><h3 id="工程截图">工程截图</h3><ul>
+<li>工程目录  </li>
+</ul>
+<p><img src="/images/SearchAPIs/1.png" alt="工程目录">  </p>
+<ul>
+<li>Pet.swift  </li>
+</ul>
+<p><img src="/images/SearchAPIs/2.png" alt="image">  </p>
+<ul>
+<li>ViewController 中调用Api  </li>
+</ul>
+<p><img src="/images/SearchAPIs/3.png" alt="image">  </p>
+<ul>
+<li>AppDelegate 回调方法  </li>
+</ul>
+<p><img src="/images/SearchAPIs/4.png" alt="image">  </p>
+<ul>
+<li>效果图  </li>
+</ul>
+<p><img src="/images/SearchAPIs/5.png" alt="image">  </p>
+<ul>
+<li>Debug print  </li>
+</ul>
+<p><img src="/images/SearchAPIs/6.png" alt="image"></p>
 
       
     </div>
@@ -105,13 +136,13 @@ defaults <span class="keyword">read</span> <span class="regexp">/Applications/</
         
   
   <div class="categories">
-    <a href="/categories/tools/">tools</a>
+    <a href="/categories/iOS/">iOS</a>
   </div>
 
         
   
   <div class="tags">
-    <a href="/tags/iOS/">iOS</a>
+    <a href="/tags/Swift/">Swift</a>
   </div>
 
         
@@ -154,7 +185,7 @@ defaults <span class="keyword">read</span> <span class="regexp">/Applications/</
   }(document, 'script', 'facebook-jssdk'));
 </script>
 
-<div class="fb-comments" data-href="http://xiaohuapunk.github.io/2015/10/30/Alcatraz/index.html" data-num-posts="5" data-width="840" data-colorscheme="light"></div>
+<div class="fb-comments" data-href="http://xiaohuapunk.github.io/2015/11/05/iOS9-SearchAPIs/index.html" data-num-posts="5" data-width="840" data-colorscheme="light"></div>
       
   
 </section>
