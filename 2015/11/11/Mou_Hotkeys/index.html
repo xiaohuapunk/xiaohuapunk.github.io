@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   
-  <title>Swift-Tip | xiaohuapunk的博客</title>
+  <title>Mou 快捷键 | xiaohuapunk的博客</title>
   <meta name="author" content="xiaohuapunk">
   
   <meta name="description" content="学习总结 思考感悟 知识管理">
@@ -11,7 +11,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 
-  <meta property="og:title" content="Swift-Tip"/>
+  <meta property="og:title" content="Mou 快捷键"/>
   <meta property="og:site_name" content="xiaohuapunk的博客"/>
 
   
@@ -54,70 +54,74 @@
     <header>
       
         <div class="icon"></div>
-        <time datetime="2015-11-02T06:43:42.000Z"><a href="/2015/11/02/Swift-Tip/">2015-11-02</a></time>
+        <time datetime="2015-11-11T06:59:11.000Z"><a href="/2015/11/11/Mou_Hotkeys/">2015-11-11</a></time>
       
       
   
-    <h1 class="title">Swift-Tip</h1>
+    <h1 class="title">Mou 快捷键</h1>
   
 
     </header>
     <div class="entry">
       
-        <p>Swift开发必备tip</p>
-<a id="more"></a>
-<p>Swift刚发布的时候，我就实践用swift写了一个项目（是公司的真实项目），当时swift给我的感觉就是语法的改变，更加精炼，当时用swift也只是简单的将oc代码用swift代替一下，其实swift的真正强大之处是 <code>新特性</code>，最近在看“喵神”写的<code>swifter_100个Swift开发必备Tip</code>，真的不错，主要讲了一些新特性，我一边学习一边会记录笔记。这里的绝大多数例子都是书中的例子，正在学习swift的同学强烈推荐你们看一下。</p>
-<h3 id="柯里化（Currying）">柯里化（Currying）</h3><hr>
+        <p>Mou 常用快捷键<br><a id="more"></a></p>
 <ul>
-<li><p>柯里化函数</p>
-<pre><code><span class="function"><span class="keyword">func</span> <span class="title">addTowNumbers</span><span class="params">(a: Int)</span><span class="params">(num: Int)</span> -&gt; <span class="title">Int</span> {</span>
-    <span class="keyword">return</span> a + num
-}
+<li><p>标题  </p>
+<pre><code>cmd + <span class="number">1</span>（<span class="number">23456</span>
 </code></pre></li>
-<li><p>只传入第一个参数得到需要传入剩余参数的新的方法</p>
-<pre><code>let addTo4 = <span class="function"><span class="title">addTowNumbers</span><span class="params">(<span class="number">4</span>)</span></span>
-<span class="comment">// Int -&gt; Int</span>
-
-let add6 = <span class="function"><span class="title">addTo4</span><span class="params">(num: <span class="number">6</span>)</span></span>
-<span class="comment">// 10</span>
-
-let add7 = <span class="function"><span class="title">addTo4</span><span class="params">(num: <span class="number">7</span>)</span></span>
-<span class="comment">// 11</span>
+<li><p>粗体  </p>
+<pre><code><span class="built_in">cmd</span> <span class="bash">+ b</span>
 </code></pre></li>
-</ul>
-<h3 id="@autoclosure">@autoclosure</h3><hr>
-<ul>
-<li>@autoclosure 该方法的参数是接受一个函数</li>
-</ul>
-<pre><code>func logIfTrue<span class="function"><span class="params">(predicate: () -&gt; Bool)</span> {
-    <span class="title">if</span> <span class="title">predicate</span><span class="params">()</span> {
-        <span class="title">print</span><span class="params">(<span class="string">"is true"</span>)</span>
-    }
-}</span>
-</code></pre><ul>
-<li>不加 @autoclosure（{11 &gt; 2}）闭包的简写</li>
-</ul>
-<pre><code><span class="function"><span class="title">logIfTrue</span><span class="params">({<span class="number">11</span> &gt; <span class="number">2</span>})</span></span>
-</code></pre><ul>
-<li>添加 @autoclosure 关键字</li>
-</ul>
-<pre><code>func logIfTrue<span class="function"><span class="params">(<span class="property">@autoclosure</span> predicate: () -&gt; Bool)</span> {
-    <span class="title">if</span> <span class="title">predicate</span><span class="params">()</span> {
-        <span class="title">print</span><span class="params">(<span class="string">"is true"</span>)</span>
-    }
-}</span>
-</code></pre><ul>
-<li>加 @autoclosure（11 &gt; 2）部分会自动识别成闭包 语法更加简练</li>
-</ul>
-<pre><code><span class="function"><span class="title">logIfTrue</span><span class="params">(<span class="number">11</span> &gt; <span class="number">2</span>)</span></span>
-</code></pre><h3 id="??操作符">??操作符</h3><hr>
-<ul>
-<li><p>??操作符可以快速地对nil进行条件判断</p>
-<pre><code><span class="variable"><span class="keyword">var</span> level</span>: <span class="typename">Int</span>?
-<span class="variable"><span class="keyword">var</span> startLevel</span> = <span class="number">1</span>
-
-<span class="variable"><span class="keyword">var</span> currentLevel</span> = level ?? startLevel
-<span class="comment">// 因为level == nil 所以 currentLever = 1</span>
+<li><p>插入代码  </p>
+<pre><code><span class="built_in">cmd</span> <span class="bash">+ k</span>
+</code></pre></li>
+<li><p>链接  </p>
+<pre><code>control + <span class="built_in">shift</span> + l
+</code></pre></li>
+<li><p>图片  </p>
+<pre><code>control + shift + <span class="tag">i</span>  
+</code></pre></li>
+<li><p>列表 *  </p>
+<pre><code><span class="keyword">control</span> + l 
+</code></pre></li>
+<li><p><del>删除</del>  </p>
+<pre><code><span class="keyword">control</span> + u
+</code></pre></li>
+<li><p>字母大写  </p>
+<pre><code><span class="keyword">control</span> + u  
+</code></pre></li>
+<li><p>字母小写  </p>
+<pre><code>control + <span class="built_in">shift</span> + u 
+</code></pre></li>
+<li><p>首字母大写  </p>
+<pre><code>control + <span class="keyword">option</span> + u
+</code></pre></li>
+<li><p>引用  </p>
+<pre><code><span class="keyword">control</span> + q
+</code></pre></li>
+<li><p>插入当前日期  </p>
+<pre><code>control + <span class="built_in">shift</span> + <span class="number">1</span>
+</code></pre></li>
+<li><p>插入当前时间  </p>
+<pre><code>control + <span class="built_in">shift</span> + <span class="number">2</span>
+</code></pre></li>
+<li><p>插入&lt;  </p>
+<pre><code>control + <span class="built_in">shift</span> + ,
+</code></pre></li>
+<li><p>插入&gt;  </p>
+<pre><code>control + <span class="built_in">shift</span> + .
+</code></pre></li>
+<li><p>插入&amp;  </p>
+<pre><code>control + <span class="built_in">shift</span> + <span class="number">7</span>
+</code></pre></li>
+<li><p>插入一个空白  </p>
+<pre><code>control + shift + <span class="constant">space</span>
+</code></pre></li>
+<li><p>插入一个文本表头  </p>
+<pre><code>control + <span class="built_in">shift</span> + g
+</code></pre></li>
+<li><p>断开当前格式换行  </p>
+<pre><code><span class="keyword">control</span> + l
 </code></pre></li>
 </ul>
 
@@ -128,13 +132,13 @@ let add7 = <span class="function"><span class="title">addTo4</span><span class="
         
   
   <div class="categories">
-    <a href="/categories/iOS/">iOS</a>
+    <a href="/categories/tools/">tools</a>
   </div>
 
         
   
   <div class="tags">
-    <a href="/tags/Swift/">Swift</a>
+    <a href="/tags/经验/">经验</a>
   </div>
 
         
@@ -177,7 +181,7 @@ let add7 = <span class="function"><span class="title">addTo4</span><span class="
   }(document, 'script', 'facebook-jssdk'));
 </script>
 
-<div class="fb-comments" data-href="http://xiaohuapunk.github.io/2015/11/02/Swift-Tip/index.html" data-num-posts="5" data-width="840" data-colorscheme="light"></div>
+<div class="fb-comments" data-href="http://xiaohuapunk.github.io/2015/11/11/Mou_Hotkeys/index.html" data-num-posts="5" data-width="840" data-colorscheme="light"></div>
       
   
 </section>
