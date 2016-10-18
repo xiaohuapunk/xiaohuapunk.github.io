@@ -138,50 +138,15 @@
     </header>
     <div class="entry">
       
-        <a id="more"></a>
-<h3 id="iOS基础">iOS基础</h3><ul>
-<li><p><strong>MVC</strong></p>
-<p>  MVC是Model、View、Controller的简称，主要是为了解决Model和View界面之间的耦合度的问题（保证低耦合）。保证数据模式和刷新界面进行独立一些。比如很多界面有列表模式，地图模式。界面有2分，当时数据模型就一份。  </p>
-<p>  比如：iOS常见的开发大多基于MVC模式，比如Controller去启动网络，数据处理，然后解析数据，然后建立数据模型，然后把数据模型关联到TableViewCell上。这种就是典型的MVC。  </p>
-</li>
-<li><p><strong>KVC</strong>  </p>
-<p>  KVC就是key valur coding 主要用来大量的对象赋值上。比如网络下载json数据进行解析，然后要给数据模型赋值。  </p>
-<p>  KVC有两个方法：setValue：forKey： 和 valueForKey：方法分别对应setter和getter方法。  </p>
-</li>
-<li><p><strong>KVO</strong>  </p>
-<p>  KVO主要用在属性的监听上。比如监听播放进度等等。  </p>
-</li>
-<li><p><strong>协议和代理</strong>  </p>
-<p>  协议就是规范接口（让每个对象都有相同的函数），主要是用来在多个对象中数据传输的统一接口，类似Java中得接口。OC协议的所有协议方法不用全部实现。@optional标示可选。  </p>
-<p>  代理是一种设计模式。在iOS中主要是用来做反向传值。  </p>
-</li>
-<li><p><strong>类别和类继承</strong>  </p>
-<p>  类别是用在给一个类扩展方法，不能扩展变量与属性，应为类别不能保存变量。  </p>
-<p>  继承可以扩展方法，属性，变量。</p>
-</li>
-</ul>
-<h3 id="runtime">runtime</h3><ul>
-<li>Objective-C对象模型及应用<code>isa指针</code>，<a href="http://blog.devtang.com/blog/2013/10/15/objective-c-object-model/" target="_blank" rel="external">参考文章</a>    </li>
-</ul>
-<h3 id="HTTP">HTTP</h3><ul>
-<li><p><strong>原理：</strong>   </p>
-<p>  HTTP是基于TCP/IP的一个网络连接协议，他是客户端和服务器通讯的常用方式。它是使用请求、相应模型、客户端请求、服务器响应的方式。HTTP协议有请求头、请求体，响应头、响应体。XML/Json 是一般作为响应的数据格式传输。GET/POST是常用的请求方式，还有PUT、Delete。      </p>
-</li>
-<li><p><strong>TCP/IP：</strong>  </p>
-<p>  TCP/IP：CP/IP是网络底层的二进制协议。他是网络传输的标准协议。TCP是稳定、可靠地点对点传输，UDP是不可靠的、高速的网络传输协议。在手机客户端中，一般在聊天类IM、或者视频流、语音等大数据中使用。TCP可以和服务器保持长连接。一般使用Socket来进行TCP/IP开发程序，常见的套接字是 AsyncSocke、BSD Socket，或者CFNetwor  </p>
-</li>
-<li><p><strong>HTTP断点下载：</strong></p>
-<p>  在HTTP头上加上Range字段就可以使用断点下载，每次取得文件大小，然后设置Range字段，然后下载数据追加到文来进行底层通讯。  </p>
-</li>
-<li><p><strong>Cookie原理</strong>  </p>
-<p>  Cookie类似于Token，主要是为了让服务端能够识别当前用户。在手机上一般使用token模式。在浏览器上比较喜欢Cookie，iOS的NSURLConnection和ASI都支持Coolie，Coolie就是一块小的数据存储空间。</p>
-</li>
-</ul>
-
+        <p>iOS基础</p>
       
     </div>
     <footer>
       
+        
+          <div class="alignleft">
+            <a href="/2015/11/10/iOS知识点/#more" class="more-link">Read More</a>
+          </div>
         
         
       
