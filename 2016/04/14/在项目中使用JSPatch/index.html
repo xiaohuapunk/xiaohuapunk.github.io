@@ -1,0 +1,237 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>在项目中使用JSPatch | 熊花雨的博客</title>
+  <meta name="author" content="xiaohuapunk">
+  
+  <meta name="description" content="学习总结 思考感悟 知识管理">
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  <meta property="og:title" content="在项目中使用JSPatch"/>
+  <meta property="og:site_name" content="熊花雨的博客"/>
+
+  
+    <meta property="og:image" content="undefined"/>
+  
+
+  <link href="/favicon.png" rel="icon">
+  <link rel="alternate" href="/atom.xml" title="熊花雨的博客" type="application/atom+xml">
+  <link rel="stylesheet" href="/css/style.css" media="screen" type="text/css">
+  <!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+  
+
+</head>
+
+
+<body>
+  <header id="header" class="inner"><div class="alignleft">
+  <h1><a href="/">熊花雨的博客</a></h1>
+  <h2><a href="/">每天进步一点点</a></h2>
+</div>
+<nav id="main-nav" class="alignright">
+  <ul>
+    
+      <li><a href="/">Home</a></li>
+    
+      <li><a href="/archives">Library</a></li>
+    
+      <li><a href="/APP">APP</a></li>
+    
+      <li><a href="/about">About</a></li>
+    
+  </ul>
+  <div class="clearfix"></div>
+</nav>
+<div class="clearfix"></div></header>
+  <div id="content" class="inner">
+    <div id="main-col" class="alignleft"><div id="wrapper"><article class="post">
+  
+  <div class="post-content">
+    <header>
+      
+        <div class="icon"></div>
+        <time datetime="2016-04-14T09:17:22.000Z"><a href="/2016/04/14/在项目中使用JSPatch/">2016-04-14</a></time>
+      
+      
+  
+    <h1 class="title">在项目中使用JSPatch</h1>
+  
+
+    </header>
+    <div class="entry">
+      
+        <p>记录一下JSPatch在项目中实际应用</p>
+<h2 id="<!-_more_->"><a id="more"></a></h2><p>JSPatch 是iOS的热更新方案，关于JSPatch具体的介绍请<a href="http://www.jspatch.com/Docs/intro" target="_blank" rel="external">点击这里</a>查看!<br>感谢JSPatch的作者——bang； </p>
+<p>JSPatch 需要使用者有一个后台可以下发和管理脚本，并且需要处理传输安全等部署工作，JSPatch平台有着一套完整的解决方案，集成JSPatchSDK 就可以直接使用，需要注意：普通版（免费）脚本日下方量 &lt; 1w，标准版（收费）可以满足用户数量庞大的App。bang将JSPatch 开源了<a href="https://github.com/bang590/JSPatch" target="_blank" rel="external">github地址</a>，下发脚本的后台也可以自行搭建。<br>其实就是需要后台提供一个接口，用于请求JS脚本</p>
+<p>JSPatch的基本原理是：JS 传递字符串给 OC，OC 通过 Runtime 接口调用和替换 OC 方法，（就是通过润OC的runtime机制做到方法的替换来修复bug），runtime理论上可以修改任意文件的任意内容，所以在执行 JS 脚本之前一定要做好安全认证工作，JSPatchSDK 后台使用的是 RSA 非对称加密方式，可以参考一下，当然也可以采用其他加密方式，这里说一下我用的AES对称加密方式：</p>
+<ul>
+<li>js脚文由客户端编辑，然后通过自定义的 Key 将 JS 代码进行 AES 加密，取 MD5 值作为唯一性的校验，将得到的密文文本保存为JS文件并上传至后台用于下发脚本；</li>
+<li>App请求后台接口（需要携带版本号），后台返回当前数据：1.是否需要更新；2.MD5值（上面说到的）；3.js脚本链接；</li>
+<li>App判断是否需要更新，yes则通过链接下载脚本，下载完脚本通过取 MD5 值与接口返回的 MD5进行比对，如一致则用自定义的 key 对js文本进行 AES 解密操作得到明文js代码；</li>
+<li>使用 JSPatch 执行js脚本；</li>
+</ul>
+<h3 id="一些主要代码">一些主要代码</h3><hr>
+<p>AES加密库github上有很多，这里推荐一个<a href="https://github.com/Gurpartap/AESCrypt-ObjC" target="_blank" rel="external">地址</a></p>
+<ul>
+<li>编辑js脚本</li>
+</ul>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"> <span class="comment">/* 比如：</span><br><span class="line">	替换TableViewController中两个方法</span><br><span class="line">	文件名为main.js</span><br><span class="line"> */</span></span><br><span class="line">defineClass(<span class="string">"TableViewController"</span>, &#123;</span><br><span class="line">  numberOfSectionsInTableView: <span class="function"><span class="keyword">function</span>(<span class="params">tableView</span>) </span>&#123;</span><br><span class="line">  	 <span class="built_in">console</span>.log(<span class="string">'调用js成功!'</span>);</span><br><span class="line">     <span class="keyword">return</span> <span class="number">2</span>;</span><br><span class="line">  &#125;,</span><br><span class="line">&#125;),</span><br><span class="line"></span><br><span class="line">defineClass(<span class="string">"TableViewController"</span>, &#123;</span><br><span class="line">  tableView_numberOfRowsInSection: <span class="function"><span class="keyword">function</span>(<span class="params">tableView, section</span>) </span>&#123;</span><br><span class="line">  	 <span class="built_in">console</span>.log(<span class="string">'调用js成功2!'</span>);</span><br><span class="line">     <span class="keyword">return</span> <span class="number">2</span>;</span><br><span class="line">  &#125;,</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+<ul>
+<li>AES加密</li>
+</ul>
+<figure class="highlight groovy"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/*</span><br><span class="line">	将js代码通过AES方式加密</span><br><span class="line">*/</span></span><br><span class="line">NSString *jsPath = [[NSBundle mainBundle] <span class="string">pathForResource:</span>@<span class="string">"main"</span> <span class="string">ofType:</span>@<span class="string">"js"</span>];</span><br><span class="line">NSString *jsStr = [NSString <span class="string">stringWithContentsOfFile:</span>jsPath <span class="string">encoding:</span>NSUTF8StringEncoding <span class="string">error:</span>nil];</span><br><span class="line">NSString *encryptedStr = [AESCrypt <span class="string">encrypt:</span>jsStr <span class="string">password:</span>ENCRYPT_PASSWORD];</span><br><span class="line"><span class="comment">/*</span><br><span class="line">	NSLog(@"%@",encryptedStr);	</span><br><span class="line">	加密后的结果：</span><br><span class="line">	Yxga9qTeEsIpaT+C20sRkExsV7LmyOhBSVVetszQ4MPvYnhlKPY6m4bqm+ynLcwV7F06sPqtPqea1NjgkblyfYI6YBP1ouUWLQgCbR2J/utbHqv3mJe2H9fpAHiynrwwM10wbY2qGiDAn2nCcWW7nSgN8EzUl/9V1Va2T23dR8+RysaY19h7WrH8LCPu7sejIucLzGGem0rIiHD95RDtyIGow8VnGszZvvxOJK0x0QR33TxvTGkRMrYHKvez9i41shwvkCZG5J5nae5SQE/5H+TdXOfiPXGh+iC9q9n0kXHZ44As1FeJOdNrS1OSuE4R3xQhUda9Elk49DK5MOVHSQcEXOQLYAka/eI8z/ErnAKBDTwTd9Ju6ZULBPJPWnAzdKWwnuSu7rt9K5LTVNTfusPr1SRRZBS0+k7qE5Pl3qQ=</span><br><span class="line">*/</span></span><br></pre></td></tr></table></figure>
+<ul>
+<li>获取MD5值</li>
+</ul>
+<figure class="highlight dns"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">NSString *md5Str = [encryptedStr md5String]<span class="comment">;</span></span><br><span class="line">// md5Str: 4d0c35de<span class="number">9999f0c1</span>cfbcc<span class="number">367126889</span>bc</span><br></pre></td></tr></table></figure>
+<ul>
+<li>将加密后的密文，与密文的MD5值放到后端用于下发脚本</li>
+</ul>
+<figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* 接口返回的数据格式 */</span></span><br><span class="line"><span class="rules">&#123;</span><br><span class="line">	<span class="rule"><span class="attribute">isUpdate</span>:<span class="value"><span class="string">'是否需要更新'</span>,</span><br><span class="line">	scriptVersion: <span class="string">'脚本的版本'</span>,</span><br><span class="line">	md5:<span class="string">'脚本文件的MD5值'</span>,</span><br><span class="line">	jsLink：<span class="string">'请求脚本的连接'</span></span><br><span class="line"></span></span></span>&#125;</span><br></pre></td></tr></table></figure>
+<ul>
+<li>请求接口</li>
+</ul>
+<figure class="highlight nimrod"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line">// 配置request</span><br><span class="line"><span class="type">NSMutableURLRequest</span> *request = [<span class="type">NSMutableURLRequest</span> requestWithURL:[<span class="type">NSURL</span> <span class="type">URLWithString</span>:@<span class="string">"URL"</span>]];</span><br><span class="line">// 设置请求方式</span><br><span class="line">[request setHTTPMethod:@<span class="string">"POST"</span>];</span><br><span class="line">// 设置请求参数</span><br><span class="line"><span class="type">NSMutableDictionary</span> *params = [<span class="type">NSMutableDictionary</span> dictionary];</span><br><span class="line">// 当前app版本</span><br><span class="line">[params setValue:@<span class="string">"1.0.0"</span> forKey:@<span class="string">"appVersion"</span>];</span><br><span class="line">// 当前本地存在的脚本版本（如果有）</span><br><span class="line">[params setValue:@<span class="string">"当前本地存在的脚本版本"</span> forKey:@<span class="string">"scriptVersion"</span>];</span><br><span class="line">    </span><br><span class="line"><span class="type">NSError</span> *error;</span><br><span class="line"><span class="type">NSData</span> *data = [<span class="type">NSJSONSerialization</span> dataWithJSONObject:params options:<span class="number">0</span> error:&amp;error];</span><br><span class="line">[request setHTTPBody:data];</span><br><span class="line">    </span><br><span class="line">// 请求接口查询是否需要执行脚本</span><br><span class="line"><span class="type">NSURLSession</span> *session = [<span class="type">NSURLSession</span> sharedSession];</span><br><span class="line"><span class="type">NSURLSessionDataTask</span> *task = [session dataTaskWithRequest:request completionHandler:^(<span class="type">NSData</span> * _Nullable data, <span class="type">NSURLResponse</span> * _Nullable response, <span class="type">NSError</span> * _Nullable error) &#123;</span><br><span class="line">	// 解析数据</span><br><span class="line">   <span class="type">NSDictionary</span> *<span class="literal">result</span> = [<span class="type">NSJSONSerialization</span> <span class="type">JSONObjectWithData</span>:data options:<span class="type">NSJSONReadingAllowFragments</span> error:<span class="keyword">nil</span>];</span><br><span class="line">   <span class="type">NSString</span> *jsLink = <span class="literal">result</span>[@<span class="string">"jsLink"</span>];</span><br><span class="line">   <span class="type">BOOL</span> isUpdate = [<span class="literal">result</span>[@<span class="string">"isUpdate"</span>] boolValue];</span><br><span class="line">        </span><br><span class="line">   // 判断是否需要更新</span><br><span class="line">   <span class="keyword">if</span> (isUpdate) &#123;</span><br><span class="line">   		// 保存md5值</span><br><span class="line">       _scriptMD5 = <span class="literal">result</span>[@<span class="string">"md5"</span>];</span><br><span class="line">       // 获取脚本</span><br><span class="line">       [self getScripWithUrl:jsLink];</span><br><span class="line">       // 将当前脚本的版本号固化保存</span><br><span class="line">       // ...</span><br><span class="line">   &#125;</span><br><span class="line">&#125;];</span><br><span class="line">[task resume];</span><br></pre></td></tr></table></figure>
+<ul>
+<li>下载js脚本并执行</li>
+</ul>
+<figure class="highlight objectivec"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* 获取js脚本 */</span></span><br><span class="line">- (<span class="keyword">void</span>)getScripWithUrl:(<span class="built_in">NSString</span> *)jsLink</span><br><span class="line">&#123;</span><br><span class="line">    <span class="built_in">NSURLSession</span> *session = [<span class="built_in">NSURLSession</span> sharedSession];</span><br><span class="line">    <span class="built_in">NSURLSessionDataTask</span> *task = [session dataTaskWithRequest:[<span class="built_in">NSURLRequest</span> requestWithURL:[<span class="built_in">NSURL</span> URLWithString:jsLink]] completionHandler:^(<span class="built_in">NSData</span> * _Nullable data, <span class="built_in">NSURLResponse</span> * _Nullable response, <span class="built_in">NSError</span> * _Nullable error) &#123;</span><br><span class="line">        <span class="built_in">NSString</span> *encryptedStr = [[<span class="built_in">NSString</span> alloc] initWithData:data encoding:<span class="built_in">NSUTF8StringEncoding</span>];</span><br><span class="line">        <span class="keyword">if</span> ([_scriptMD5 isEqualToString:[encryptedStr md5String]]) &#123;</span><br><span class="line">            <span class="comment">// 将密文解密成明文</span></span><br><span class="line">            <span class="built_in">NSString</span> *script = [AESCrypt decrypt:encryptedStr password:ENCRYPT_PASSWORD];</span><br><span class="line">            <span class="comment">// JSPatch 执行脚本</span></span><br><span class="line">            [JPEngine evaluateScript:script];</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;];</span><br><span class="line">    [task resume];</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="总结">总结</h3><p>本文只是为JSPatch下发脚本提出的一个简单的可行性思想，真正实施的时候还需要注意很多细节，比如应该将这部分功能封装为一个工具、版本控制（针对AppVersion下发不同版本的js脚本版本），灰度下发等等；以后有时间在补充…</p>
+
+      
+    </div>
+    <footer>
+      
+        
+  
+  <div class="categories">
+    <a href="/categories/iOS/">iOS</a>
+  </div>
+
+        
+  
+  <div class="tags">
+    <a href="/tags/JSPatch/">JSPatch</a>
+  </div>
+
+        
+  <div class="addthis addthis_toolbox addthis_default_style">
+    
+      <a class="addthis_button_facebook_like" fb:like:layout="button_count"></a>
+    
+    
+      <a class="addthis_button_tweet"></a>
+    
+    
+      <a class="addthis_button_google_plusone" g:plusone:size="medium"></a>
+    
+    
+      <a class="addthis_button_pinterest_pinit" pi:pinit:layout="horizontal"></a>
+    
+    <a class="addthis_counter addthis_pill_style"></a>
+  </div>
+  <script type="text/javascript" src="//s7.addthis.com/js/300/addthis_widget.js"></script>
+
+      
+      <div class="clearfix"></div>
+    </footer>
+  </div>
+</article>
+
+
+<section id="comment">
+  <h1 class="title">留言</h1>
+
+  
+      <div id="fb-root"></div>
+<script>
+  (function(d, s, id) {
+    var js, fjs = d.getElementsByTagName(s)[0];
+    if (d.getElementById(id)) return;
+    js = d.createElement(s); js.id = id;
+    js.src = "//connect.facebook.net/en_US/all.js#xfbml=1&appId=123456789012345";
+    fjs.parentNode.insertBefore(js, fjs);
+  }(document, 'script', 'facebook-jssdk'));
+</script>
+
+<div class="fb-comments" data-href="http://xiaohuapunk.github.io/2016/04/14/在项目中使用JSPatch/index.html" data-num-posts="5" data-width="840" data-colorscheme="light"></div>
+      
+  
+</section>
+
+</div></div>
+    <aside id="sidebar" class="alignright">
+  <div class="search">
+  <form action="//google.com/search" method="get" accept-charset="utf-8">
+    <input type="search" name="q" results="0" placeholder="搜索">
+    <input type="hidden" name="q" value="site:xiaohuapunk.github.io">
+  </form>
+</div>
+
+  
+<div class="widget tag">
+  <h3 class="title">分类</h3>
+  <ul class="entry">
+  
+    <li><a href="/categories/PHP/">PHP</a><small>1</small></li>
+  
+    <li><a href="/categories/iOS/">iOS</a><small>5</small></li>
+  
+    <li><a href="/categories/tools/">tools</a><small>2</small></li>
+  
+    <li><a href="/categories/教程/">教程</a><small>2</small></li>
+  
+  </ul>
+</div>
+
+
+  
+<div class="widget tag">
+  <h3 class="title">标签</h3>
+  <ul class="entry">
+  
+    <li><a href="/tags/JSPatch/">JSPatch</a><small>1</small></li>
+  
+    <li><a href="/tags/Swift/">Swift</a><small>2</small></li>
+  
+    <li><a href="/tags/iOS/">iOS</a><small>2</small></li>
+  
+    <li><a href="/tags/教程/">教程</a><small>1</small></li>
+  
+    <li><a href="/tags/经验/">经验</a><small>1</small></li>
+  
+    <li><a href="/tags/经验分享/">经验分享</a><small>1</small></li>
+  
+  </ul>
+</div>
+
+</aside>
+    <div class="clearfix"></div>
+  </div>
+  <footer id="footer" class="inner"><div class="alignleft">
+  
+  &copy; 2016 xiaohuapunk
+  
+</div>
+<div class="clearfix"></div></footer>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+(function($){
+  $('.fancybox').fancybox();
+})(jQuery);
+</script>
+
+</body>
+</html>
