@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   
-  <title>Swift-Tip | 熊花雨的博客</title>
+  <title>Vue学习（1） | 熊花雨的博客</title>
   <meta name="author" content="xiaohuapunk">
   
   <meta name="description" content="学习总结 思考感悟 知识管理">
@@ -11,7 +11,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 
-  <meta property="og:title" content="Swift-Tip"/>
+  <meta property="og:title" content="Vue学习（1）"/>
   <meta property="og:site_name" content="熊花雨的博客"/>
 
   
@@ -54,71 +54,21 @@
     <header>
       
         <div class="icon"></div>
-        <time datetime="2015-11-02T06:43:42.000Z"><a href="/2015/11/02/Swift-Tip/">2015-11-02</a></time>
+        <time datetime="2016-10-19T02:53:24.000Z"><a href="/2016/10/19/Vue学习（1）/">2016-10-19</a></time>
       
       
   
-    <h1 class="title">Swift-Tip</h1>
+    <h1 class="title">Vue学习（1）</h1>
   
 
     </header>
     <div class="entry">
       
-        <p>Swift开发必备tip</p>
+        <p>Vue 学习（1）</p>
 <a id="more"></a>
-<p>Swift刚发布的时候，我就实践用swift写了一个项目（是公司的真实项目），当时swift给我的感觉就是语法的改变，更加精炼，当时用swift也只是简单的将oc代码用swift代替一下，其实swift的真正强大之处是 <code>新特性</code>，最近在看“喵神”写的<code>swifter_100个Swift开发必备Tip</code>，真的不错，主要讲了一些新特性，我一边学习一边会记录笔记。这里的绝大多数例子都是书中的例子，正在学习swift的同学强烈推荐你们看一下。</p>
-<h3 id="柯里化（Currying）">柯里化（Currying）</h3><hr>
-<ul>
-<li><p>柯里化函数</p>
-<pre><code><span class="function"><span class="keyword">func</span> <span class="title">addTowNumbers</span><span class="params">(a: Int)</span><span class="params">(num: Int)</span> -&gt; <span class="title">Int</span> {</span>
-    <span class="keyword">return</span> a + num
-}
-</code></pre></li>
-<li><p>只传入第一个参数得到需要传入剩余参数的新的方法</p>
-<pre><code>let addTo4 = <span class="function"><span class="title">addTowNumbers</span><span class="params">(<span class="number">4</span>)</span></span>
-<span class="comment">// Int -&gt; Int</span>
-
-let add6 = <span class="function"><span class="title">addTo4</span><span class="params">(num: <span class="number">6</span>)</span></span>
-<span class="comment">// 10</span>
-
-let add7 = <span class="function"><span class="title">addTo4</span><span class="params">(num: <span class="number">7</span>)</span></span>
-<span class="comment">// 11</span>
-</code></pre></li>
-</ul>
-<h3 id="@autoclosure">@autoclosure</h3><hr>
-<ul>
-<li>@autoclosure 该方法的参数是接受一个函数</li>
-</ul>
-<pre><code>func logIfTrue<span class="function"><span class="params">(predicate: () -&gt; Bool)</span> {
-    <span class="title">if</span> <span class="title">predicate</span><span class="params">()</span> {
-        <span class="title">print</span><span class="params">(<span class="string">"is true"</span>)</span>
-    }
-}</span>
-</code></pre><ul>
-<li>不加 @autoclosure（{11 &gt; 2}）闭包的简写</li>
-</ul>
-<pre><code><span class="function"><span class="title">logIfTrue</span><span class="params">({<span class="number">11</span> &gt; <span class="number">2</span>})</span></span>
-</code></pre><ul>
-<li>添加 @autoclosure 关键字</li>
-</ul>
-<pre><code>func logIfTrue<span class="function"><span class="params">(<span class="property">@autoclosure</span> predicate: () -&gt; Bool)</span> {
-    <span class="title">if</span> <span class="title">predicate</span><span class="params">()</span> {
-        <span class="title">print</span><span class="params">(<span class="string">"is true"</span>)</span>
-    }
-}</span>
-</code></pre><ul>
-<li>加 @autoclosure（11 &gt; 2）部分会自动识别成闭包 语法更加简练</li>
-</ul>
-<pre><code><span class="function"><span class="title">logIfTrue</span><span class="params">(<span class="number">11</span> &gt; <span class="number">2</span>)</span></span>
-</code></pre><h3 id="??操作符">??操作符</h3><hr>
-<ul>
-<li><p>??操作符可以快速地对nil进行条件判断</p>
-<pre><code><span class="variable"><span class="keyword">var</span> level</span>: <span class="typename">Int</span>?
-<span class="variable"><span class="keyword">var</span> startLevel</span> = <span class="number">1</span>
-
-<span class="variable"><span class="keyword">var</span> currentLevel</span> = level ?? startLevel
-<span class="comment">// 因为level == nil 所以 currentLever = 1</span>
-</code></pre></li>
+<h3 id="记录">记录</h3><ul>
+<li><code>Vue.js</code>是一个用于创建 web 交互界面的库。</li>
+<li>从技术角度讲，<code>Vue.js</code> 专注于 MVVM 模型的 ViewModel 层。它通过双向数据绑定把 View 层和 Model 层连接了起来。实际的 DOM 封装和输出格式都被抽象为了 Directives 和 Filters。</li>
 </ul>
 
       
@@ -128,13 +78,13 @@ let add7 = <span class="function"><span class="title">addTo4</span><span class="
         
   
   <div class="categories">
-    <a href="/categories/iOS/">iOS</a>
+    <a href="/categories/web前端/">web前端</a>
   </div>
 
         
   
   <div class="tags">
-    <a href="/tags/Swift/">Swift</a>
+    <a href="/tags/Vue/">Vue</a>
   </div>
 
         
@@ -177,7 +127,7 @@ let add7 = <span class="function"><span class="title">addTo4</span><span class="
   }(document, 'script', 'facebook-jssdk'));
 </script>
 
-<div class="fb-comments" data-href="http://xiaohuapunk.github.io/2015/11/02/Swift-Tip/index.html" data-num-posts="5" data-width="840" data-colorscheme="light"></div>
+<div class="fb-comments" data-href="http://xiaohuapunk.github.io/2016/10/19/Vue学习（1）/index.html" data-num-posts="5" data-width="840" data-colorscheme="light"></div>
       
   
 </section>
