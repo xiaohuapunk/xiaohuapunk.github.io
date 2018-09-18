@@ -65,8 +65,9 @@
     <div class="entry">
       
         <h3 id="概念">概念</h3><p><code>OAuth2.0</code> 是一种授权协议，现在很多App或者一些网站需要注册登录后才可以使用，注册过程又比较繁琐有些用户并不想注册太多账号，从而会造成一部分用户流失，为了简化这个过程可以使用第三方登录的功能，比如QQ、微信、微博等都提供授权登录功能，这个授权登录所应用的技术就是<code>OAuth2.0</code>；</p>
+<a id="more"></a>
 <p>引用一张网络图（豆瓣网站使用QQ授权登录的 流程图）</p>
-<p><img src="./OAuth2-0/auth.png" alt="图片来源网络"></p>
+<p><img src="./auth.png" alt="图片来源网络"></p>
 <h4 id="关键步骤分析">关键步骤分析</h4><p>1.客户端点击QQ登录，服务器将请求重定向到QQ的授权服务器 <br><br>2.向QQ服务器发送请求，QQ服务器返回 authentication <code>code</code>；<br><br>3.客户端通过callback将code传给自己服务器；<br><br>4.自己服务器使用code向QQ授权服务器请求 token；到这一步<code>OAuth</code>的认证过程已经完成<br><br>5.有了 token 就可以获取用户QQ的用户信息；<br></p>
 <p>简单来说就是先获取 <code>code</code>，然后使用<code>code</code>在获取<code>token</code>，有了<code>token</code>就可以访问开放的接口，比如用户基本信息等；</p>
 <ul>
