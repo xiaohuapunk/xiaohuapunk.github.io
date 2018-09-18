@@ -1,0 +1,209 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>runtime问题 | 熊花雨的博客</title>
+  <meta name="author" content="xiaohuapunk">
+  
+  <meta name="description" content="学习总结 思考感悟 知识管理">
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  <meta property="og:title" content="runtime问题"/>
+  <meta property="og:site_name" content="熊花雨的博客"/>
+
+  
+    <meta property="og:image" content="undefined"/>
+  
+
+  <link href="/favicon.png" rel="icon">
+  <link rel="alternate" href="/atom.xml" title="熊花雨的博客" type="application/atom+xml">
+  <link rel="stylesheet" href="/css/style.css" media="screen" type="text/css">
+  <!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+  
+
+</head>
+
+
+<body>
+  <header id="header" class="inner"><div class="alignleft">
+  <h1><a href="/">熊花雨的博客</a></h1>
+  <h2><a href="/">每天进步一点点</a></h2>
+</div>
+<nav id="main-nav" class="alignright">
+  <ul>
+    
+      <li><a href="/">Home</a></li>
+    
+      <li><a href="/archives">Library</a></li>
+    
+      <li><a href="/APP">APP</a></li>
+    
+      <li><a href="/about">About</a></li>
+    
+  </ul>
+  <div class="clearfix"></div>
+</nav>
+<div class="clearfix"></div></header>
+  <div id="content" class="inner">
+    <div id="main-col" class="alignleft"><div id="wrapper"><article class="post">
+  
+  <div class="post-content">
+    <header>
+      
+        <div class="icon"></div>
+        <time datetime="2016-05-13T14:37:08.000Z"><a href="/2016/05/13/runtime问题/">2016-05-13</a></time>
+      
+      
+  
+    <h1 class="title">runtime问题</h1>
+  
+
+    </header>
+    <div class="entry">
+      
+        <p>记录一些关于 runtime 的问题</p>
+<a id="more"></a>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">BOOL r1 = [[NSObject class] isKindOfClass:[NSObject class]];&#10;BOOL r2 = [[NSObject class] isMemberOfClass:[NSObject class]];</span><br></pre></td></tr></table></figure>
+<p>考察<code>Class</code>，<code>MetaClass</code>的关系，更重要的是考察<code>isKindOfClass</code>与<code>isMemberOfClass</code>的实现</p>
+<p>在思考这道题之前先看一张经典的图片 Object-C 的对象模型图，图中描述了isazhizhen</p>
+<p><img src="./runtime问题/模型图.png" alt=""></p>
+<p>还有<code>NSObject</code>的几个相关方法的实现</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/*&#10;&#36820;&#22238;&#23545;&#35937;&#30340; isa &#25351;&#38024;&#25351;&#21521;&#30340;&#23545;&#35937;&#65292;&#24182;&#19988;&#26681;&#25454;&#19978;&#22270;`Object-C&#30340;&#23545;&#35937;&#21407;&#22411;&#22270;`&#21487;&#30693;&#10;1.&#23454;&#20363;&#23545;&#35937;&#65306;&#36820;&#22238;&#30340;&#26159;&#23545;&#24212;&#30340;`Class`&#21363;&#31867;&#10;2.&#31867;&#65306;&#36820;&#22238;&#23545;&#24212;&#30340;`MetaClass`&#21363;&#20803;&#31867;&#10;3.&#20803;&#31867;&#65306;&#36820;&#22238; `RootMetaClass`&#21363;&#26681;&#20803;&#31867;&#65288;&#32477;&#22823;&#22810;&#25968;&#37117;&#26159;&#8216;NSObject &#30340;&#20803;&#31867;&#8217;&#65289;&#10;4.&#26681;&#20803;&#31867;&#65306;&#36820;&#22238; &#23427;&#33258;&#24049;&#65288;&#26681;&#20803;&#31867;&#30340; isa &#25351;&#21521;&#33258;&#24049;&#65289;&#10;&#27880;&#65306;Class&#65292;MetaClass &#37117;&#26159;&#23545;&#35937;&#37117;&#21253;&#21547;isa&#25351;&#38024;&#65307;&#10;*/&#10;Class object_getClass(id obj)&#10;&#123;&#10;    if (obj) return obj-&#62;getIsa();&#10;    else return Nil;&#10;&#125;&#10;&#10;/*&#10;&#31867;&#26041;&#27861;&#10;&#36820;&#22238;&#33258;&#24049;&#10;*/&#10;+ (Class)class &#123;&#10;    return self;&#10;&#125;&#10;&#10;/*&#10;&#23454;&#20363;&#26041;&#27861;&#10;&#36820;&#22238;&#30340;&#26159;&#23545;&#24212;&#30340;&#65288;Class&#65289;&#31867;&#10;*/&#10;- (Class)class &#123;&#10;    return object_getClass(self);&#10;&#125;&#10;/*&#10;&#31867;&#26041;&#27861;&#10;1.&#31867;&#65306;superclass &#25351;&#21521;&#29238;&#31867;&#30340;&#31867;&#23545;&#35937;&#65292;&#26368;&#21518;&#25351;&#21521;&#26681;&#31867;&#30340;&#31867;&#23545;&#35937;&#65288;NSObject&#65289;&#65292;&#26681;&#31867;&#30340;superclass&#25351;&#21521; null&#10;2.&#20803;&#31867;&#65306;superclass &#25351;&#21521;&#29238;&#31867;&#30340;&#20803;&#31867;&#65292;&#26368;&#21518;&#25351;&#21521;&#26681;&#20803;&#31867;&#65292;&#26681;&#20803;&#31867;&#30340; superclass &#25351;&#21521;&#26681;&#31867;&#10;*/&#10;+ (Class)superclass &#123;&#10;    return self-&#62;superclass;&#10;&#125;&#10;&#10;/*&#10;&#23454;&#20363;&#26041;&#27861;&#10;&#36820;&#22238;&#29238;&#31867;&#10;*/&#10;- (Class)superclass &#123;&#10;    return [self class]-&#62;superclass;&#10;&#125;&#10;&#10;/*&#10;&#31867;&#26041;&#27861;&#10;&#36820;&#22238;&#30340;&#26159; &#20803;&#31867;&#19982;&#20256;&#20837;&#30340;&#21442;&#25968;&#27604;&#36739;&#32467;&#26524;&#10;*/&#10;+ (BOOL)isMemberOfClass:(Class)cls &#123;&#10;    return object_getClass((id)self) == cls;&#10;&#125;&#10;&#10;/*&#10;&#23454;&#20363;&#26041;&#27861;&#10;&#36820;&#22238;&#30340;&#26159; &#31867;&#19982;&#20256;&#20837;&#21442;&#25968;&#30340;&#27604;&#36739;&#32467;&#26524;&#10;*/&#10;- (BOOL)isMemberOfClass:(Class)cls &#123;&#10;    return [self class] == cls;&#10;&#125;&#10;&#10;/*&#10;&#31867;&#26041;&#27861; &#10;&#27604;`+ (BOOL)isMemberOfClass:`&#26041;&#27861;&#22810;&#20102;&#19968;&#20010;for&#24490;&#29615;&#65292;&#20250;&#20174;&#20803;&#31867;&#24320;&#22987;&#24490;&#29615;&#36941;&#21382;&#20803;&#31867;&#30340;superclass&#36827;&#34892;&#27604;&#36739;&#10;&#20808;&#21462;&#31867;&#30340;isa&#21363;&#20803;&#31867;&#65292;&#28982;&#21518;&#19982;&#20256;&#20837;&#30340;&#21442;&#25968;&#27604;&#36739;&#65292;&#22914;&#26524;&#19981;&#30456;&#31561;&#21017;&#20250;&#32487;&#32493;&#24490;&#29615;&#36941;&#21382;&#20803;&#31867;&#30340;superclass&#36827;&#34892;&#27604;&#36739;&#10;*/&#10;+ (BOOL)isKindOfClass:(Class)cls &#123;&#10;    for (Class tcls = object_getClass((id)self); tcls; tcls = tcls-&#62;superclass) &#123;&#10;        if (tcls == cls) return YES;&#10;    &#125;&#10;    return NO;&#10;&#125;&#10;&#10;/*&#10;&#23454;&#20363;&#26041;&#27861;&#10;&#20808;&#21462;&#23454;&#20363;&#23545;&#24212;&#30340;&#31867;&#19982;&#20256;&#20837;&#30340;&#21442;&#25968;&#20570;&#27604;&#36739;&#65292;&#22914;&#26524;&#19981;&#30456;&#31561;&#32487;&#32493;&#20250;&#24490;&#29615;&#36941;&#21382;&#31867;&#30340;superclass&#36827;&#34892;&#27604;&#36739;&#10;*/&#10;- (BOOL)isKindOfClass:(Class)cls &#123;&#10;    for (Class tcls = [self class]; tcls; tcls = tcls-&#62;superclass) &#123;&#10;        if (tcls == cls) return YES;&#10;    &#125;&#10;    return NO;&#10;&#125;</span><br></pre></td></tr></table></figure>
+<p>了解了<code>isa</code>及<code>superclass</code>的指向关系，及上面的几个方法的实现后在来看这道题就非常简单了；</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">BOOL r1 = [[NSObject class] isKindOfClass:[NSObject class]];&#10;&#10;// &#21487;&#20197;&#21464;&#24418;&#20026;&#10;BOOL result = NO;&#10;Class obj = [NSObject class];&#10;for (Class tcls = object_getClass(obj); tcls; tcls = [tcls superclass]) &#123;&#10;&#9;if (tcls == cls) &#123;&#10;        result = YES;&#10;        break;&#10;    &#125;&#10;&#125;&#10;&#10;/*&#10;&#31532;&#19968;&#27425;&#24490;&#29615; tcls = NSObject-&#62;MetaClass &#8800; NSObject&#10;&#31532;&#20108;&#27425;&#24490;&#29615; tcls = tcls-&#62;superclass = NSObject&#10;**&#27880;&#65306;NSObject&#31867;&#30340;&#20803;&#31867;&#30340;superclass&#25351;&#21521;NSObject&#31867;**&#10;*/&#10;&#10;BOOL r2 = [[NSObject class] isMemberOfClass:[NSObject class]];&#10;/*&#10;&#36825;&#20010;&#23601;&#26356;&#31616;&#21333;&#20102;&#65292;&#20182;&#21482;&#20570;&#20102; isKindOfClass: &#30340;&#31532;&#19968;&#27425;&#21028;&#26029;&#21363;&#65306;tcls = NSObject-&#62;MetaClass &#8800; NSObject&#10;*/</span><br></pre></td></tr></table></figure>
+
+      
+    </div>
+    <footer>
+      
+        
+        
+  
+  <div class="tags">
+    <a href="/tags/iOS/">iOS</a>
+  </div>
+
+        
+  <div class="addthis addthis_toolbox addthis_default_style">
+    
+      <a class="addthis_button_facebook_like" fb:like:layout="button_count"></a>
+    
+    
+      <a class="addthis_button_tweet"></a>
+    
+    
+      <a class="addthis_button_google_plusone" g:plusone:size="medium"></a>
+    
+    
+      <a class="addthis_button_pinterest_pinit" pi:pinit:layout="horizontal"></a>
+    
+    <a class="addthis_counter addthis_pill_style"></a>
+  </div>
+  <script type="text/javascript" src="//s7.addthis.com/js/300/addthis_widget.js"></script>
+
+      
+      <div class="clearfix"></div>
+    </footer>
+  </div>
+</article>
+
+
+<section id="comment">
+  <h1 class="title">留言</h1>
+
+  
+      <div id="fb-root"></div>
+<script>
+  (function(d, s, id) {
+    var js, fjs = d.getElementsByTagName(s)[0];
+    if (d.getElementById(id)) return;
+    js = d.createElement(s); js.id = id;
+    js.src = "//connect.facebook.net/en_US/all.js#xfbml=1&appId=123456789012345";
+    fjs.parentNode.insertBefore(js, fjs);
+  }(document, 'script', 'facebook-jssdk'));
+</script>
+
+<div class="fb-comments" data-href="http://xiaohuapunk.github.io/2016/05/13/runtime问题/index.html" data-num-posts="5" data-width="840" data-colorscheme="light"></div>
+      
+  
+</section>
+
+</div></div>
+    <aside id="sidebar" class="alignright">
+  <div class="search">
+  <form action="//google.com/search" method="get" accept-charset="utf-8">
+    <input type="search" name="q" results="0" placeholder="搜索">
+    <input type="hidden" name="q" value="site:xiaohuapunk.github.io">
+  </form>
+</div>
+
+  
+<div class="widget tag">
+  <h3 class="title">分类</h3>
+  <ul class="entry">
+  
+    <li><a href="/categories/PHP/">PHP</a><small>1</small></li>
+  
+    <li><a href="/categories/iOS/">iOS</a><small>6</small></li>
+  
+    <li><a href="/categories/tools/">tools</a><small>2</small></li>
+  
+    <li><a href="/categories/web前端/">web前端</a><small>1</small></li>
+  
+    <li><a href="/categories/教程/">教程</a><small>2</small></li>
+  
+  </ul>
+</div>
+
+
+  
+<div class="widget tag">
+  <h3 class="title">标签</h3>
+  <ul class="entry">
+  
+    <li><a href="/tags/JSPatch/">JSPatch</a><small>1</small></li>
+  
+    <li><a href="/tags/Swift/">Swift</a><small>2</small></li>
+  
+    <li><a href="/tags/Vue/">Vue</a><small>1</small></li>
+  
+    <li><a href="/tags/iOS/">iOS</a><small>5</small></li>
+  
+    <li><a href="/tags/教程/">教程</a><small>1</small></li>
+  
+    <li><a href="/tags/经验/">经验</a><small>1</small></li>
+  
+    <li><a href="/tags/经验分享/">经验分享</a><small>1</small></li>
+  
+  </ul>
+</div>
+
+</aside>
+    <div class="clearfix"></div>
+  </div>
+  <footer id="footer" class="inner"><div class="alignleft">
+  
+  &copy; 2018 xiaohuapunk
+  
+</div>
+<div class="clearfix"></div></footer>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+(function($){
+  $('.fancybox').fancybox();
+})(jQuery);
+</script>
+
+</body>
+</html>

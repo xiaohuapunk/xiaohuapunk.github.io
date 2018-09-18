@@ -1,0 +1,260 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>线程安全 | 熊花雨的博客</title>
+  <meta name="author" content="xiaohuapunk">
+  
+  <meta name="description" content="学习总结 思考感悟 知识管理">
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  <meta property="og:title" content="线程安全"/>
+  <meta property="og:site_name" content="熊花雨的博客"/>
+
+  
+    <meta property="og:image" content="undefined"/>
+  
+
+  <link href="/favicon.png" rel="icon">
+  <link rel="alternate" href="/atom.xml" title="熊花雨的博客" type="application/atom+xml">
+  <link rel="stylesheet" href="/css/style.css" media="screen" type="text/css">
+  <!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+  
+
+</head>
+
+
+<body>
+  <header id="header" class="inner"><div class="alignleft">
+  <h1><a href="/">熊花雨的博客</a></h1>
+  <h2><a href="/">每天进步一点点</a></h2>
+</div>
+<nav id="main-nav" class="alignright">
+  <ul>
+    
+      <li><a href="/">Home</a></li>
+    
+      <li><a href="/archives">Library</a></li>
+    
+      <li><a href="/APP">APP</a></li>
+    
+      <li><a href="/about">About</a></li>
+    
+  </ul>
+  <div class="clearfix"></div>
+</nav>
+<div class="clearfix"></div></header>
+  <div id="content" class="inner">
+    <div id="main-col" class="alignleft"><div id="wrapper"><article class="post">
+  
+  <div class="post-content">
+    <header>
+      
+        <div class="icon"></div>
+        <time datetime="2017-08-08T08:51:33.000Z"><a href="/2017/08/08/线程安全/">2017-08-08</a></time>
+      
+      
+  
+    <h1 class="title">线程安全</h1>
+  
+
+    </header>
+    <div class="entry">
+      
+        <p>iOS 线程安全一些知识，线程锁</p>
+<a id="more"></a>
+<h3 id="nonatomic_与_atomic_的理解">nonatomic 与 atomic 的理解</h3><ul>
+<li><code>atomic</code>和<code>nonatomic</code>区别用来决定编译器生成的<code>getter</code>和<code>setter</code>是否为原子操作。<code>atomic</code>提供多线程安全,是描述该变量是否支持多线程的同步访问，如果选择了<code>atomic</code> 那么就是说，系统会自动的创建<code>lock</code>锁，锁定变量。<code>nonatomic</code>禁止多线程变量保护，提高性能。</li>
+<li><code>atomic</code>是绝对线程安全的，它能保证<code>setter</code>、<code>getter</code>方法安全，<code>atomic</code>的作用在此，它保证的只是<strong>属性值</strong>是线程安全的，如果属性是一个<strong>对象</strong>，属性的值即对象的地址，它保证是这个属性的地址值，而不是指向的对象的相关操作。比如属性是<code>NSMutableArray</code>，对数组的增删操作都不会保证线程安全，还是需要对相关方法加锁来保证线程安全；</li>
+</ul>
+<h3 id="加锁的几种方式">加锁的几种方式</h3><p><strong>1.<code>@synchronized(obj){}</code></strong></p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">NSObject *obj = [[NSObject alloc] init];&#10;dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^&#123;&#10;    @synchronized(obj) &#123;&#10;       NSLog(@&#34;&#38656;&#35201;&#32447;&#31243;&#21516;&#27493;&#30340;&#25805;&#20316;1 &#24320;&#22987;&#34;);&#10;       sleep(3);&#10;       NSLog(@&#34;&#38656;&#35201;&#32447;&#31243;&#21516;&#27493;&#30340;&#25805;&#20316;1 &#32467;&#26463;&#34;);&#10;    &#125;&#10;&#125;);&#10;dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^&#123;&#10;    sleep(1);&#10;    @synchronized(obj) &#123;&#10;       NSLog(@&#34;&#38656;&#35201;&#32447;&#31243;&#21516;&#27493;&#30340;&#25805;&#20316;2&#34;);&#10;    &#125;&#10;&#125;);</span><br></pre></td></tr></table></figure>
+<ul>
+<li><code>@synchronized(obj)</code>指令使用的obj为该锁的唯一标识，只有当标识相同时，才为满足互斥，如果线程2中的<code>@synchronized(obj)</code>改为<code>@synchronized(self)</code>,刚线程2就不会被阻塞;</li>
+</ul>
+<p><strong>2.<code>dispatch_semaphore</code></strong></p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">dispatch_semaphore_t signal = dispatch_semaphore_create(1); // &#21021;&#22987;&#21270;&#24517;&#39035; &#62;= 0&#10;dispatch_time_t overTime = dispatch_time(DISPATCH_TIME_NOW, 3 * NSEC_PER_SEC); // overTime &#25351;&#23450;&#31561;&#24453;&#26102;&#38271;&#65292;&#36229;&#36807;&#26102;&#38388;&#21017;&#32447;&#31243;&#20250;&#31361;&#30772;&#38145;&#30340;&#38480;&#21046;&#32487;&#32493;&#25191;&#34892;&#65292;&#10;dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^&#123;&#10;    dispatch_semaphore_wait(signal, overTime); // signal &#20540;&#20943;1&#65292;&#21482;&#35201;&#20540; &#62; 0 &#32447;&#31243;&#21487;&#20197;&#32487;&#32493;&#25191;&#34892;&#65292;&#24403;&#20540;&#31561;&#20110;0&#23601;&#20250;&#35302;&#21457;&#31561;&#24453;&#65292;&#38459;&#27490;&#32447;&#31243;&#32487;&#32493;&#25191;&#34892;&#65292;&#31561;&#24453;&#26102;&#38388;&#21487;&#20197;&#35774;&#32622;&#20026;&#27704;&#20037; `DISPATCH_TIME_FOREVER`&#10;            NSLog(@&#34;&#38656;&#35201;&#32447;&#31243;&#21516;&#27493;&#30340;&#25805;&#20316;1 &#24320;&#22987;&#34;);&#10;            sleep(2);&#10;            NSLog(@&#34;&#38656;&#35201;&#32447;&#31243;&#21516;&#27493;&#30340;&#25805;&#20316;1 &#32467;&#26463;&#34;);&#10;        dispatch_semaphore_signal(signal); // signal &#20540;&#21152;1&#10;&#125;);&#10;dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^&#123;&#10;        sleep(1);&#10;        dispatch_semaphore_wait(signal, overTime);&#10;            NSLog(@&#34;&#38656;&#35201;&#32447;&#31243;&#21516;&#27493;&#30340;&#25805;&#20316;2&#34;);&#10;        dispatch_semaphore_signal(signal);&#10;&#125;);</span><br></pre></td></tr></table></figure>
+<ul>
+<li>dispatch_semaphore 是信号量，但当信号总量设为 1 时也可以当作锁来使用。</li>
+</ul>
+<p><strong>3.<code>NSLock</code></strong></p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">NSLock *lock = [[NSLock alloc] init];&#10;dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^&#123;&#10;    [lock lock];&#10;    //[lock lockBeforeDate:[NSDate date]];&#10;    NSLog(@&#34;&#38656;&#35201;&#32447;&#31243;&#21516;&#27493;&#30340;&#25805;&#20316;1 &#24320;&#22987;&#34;);&#10;    sleep(2);&#10;    NSLog(@&#34;&#38656;&#35201;&#32447;&#31243;&#21516;&#27493;&#30340;&#25805;&#20316;1 &#32467;&#26463;&#34;);&#10;    [lock unlock];&#10;&#125;);&#10;dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^&#123;&#10;    sleep(1);&#10;    if ([lock tryLock]) &#123; // &#23581;&#35797;&#33719;&#21462;&#38145;&#65292;&#22914;&#26524;&#33719;&#21462;&#19981;&#21040;&#36820;&#22238;NO&#65292;&#19981;&#20250;&#38459;&#22622;&#35813;&#32447;&#31243;&#10;        NSLog(@&#34;&#38145;&#21487;&#29992;&#30340;&#25805;&#20316;&#34;);&#10;        [lock unlock];&#10;    &#125;else&#123;&#10;        NSLog(@&#34;&#38145;&#19981;&#21487;&#29992;&#30340;&#25805;&#20316;&#34;);&#10;    &#125;&#10;    NSDate *date = [[NSDate alloc] initWithTimeIntervalSinceNow:3];&#10;    if ([lock lockBeforeDate:date]) &#123; // &#23581;&#35797;&#22312;&#26410;&#26469;&#30340;3s&#20869;&#33719;&#21462;&#38145;&#65292;&#24182;&#38459;&#22622;&#35813;&#32447;&#31243;&#65292;&#22914;&#26524;3s&#20869;&#33719;&#21462;&#19981;&#21040;&#24674;&#22797;&#32447;&#31243;, &#36820;&#22238;NO,&#19981;&#20250;&#38459;&#22622;&#35813;&#32447;&#31243;&#10;        NSLog(@&#34;&#27809;&#26377;&#36229;&#26102;&#65292;&#33719;&#24471;&#38145;&#34;);&#10;        [lock unlock];&#10;    &#125;else&#123;&#10;        NSLog(@&#34;&#36229;&#26102;&#65292;&#27809;&#26377;&#33719;&#24471;&#38145;&#34;);&#10;    &#125;&#10;&#125;);</span><br></pre></td></tr></table></figure>
+<ul>
+<li>注意<code>lock</code>，与<code>unlock</code>需要<strong>成对使用</strong></li>
+</ul>
+<p><strong>4.<code>NSRecursiveLock</code></strong> 递归锁</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">//NSLock *lock = [[NSLock alloc] init]; &#30452;&#25509;&#20351;&#29992; NSLock &#20250;&#23548;&#33268;&#27515;&#38145;&#10;NSRecursiveLock *lock = [[NSRecursiveLock alloc] init];&#10;dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^&#123;&#10;       static void (^RecursiveMethod)(int);&#10;       RecursiveMethod = ^(int value) &#123;&#10;       [lock lock];&#10;         if (value &#62; 0) &#123;&#10;                NSLog(@&#34;value = %d&#34;, value);&#10;                sleep(1);&#10;                RecursiveMethod(value - 1);&#10;          &#125;&#10;         [lock unlock];&#10;     &#125;;&#10;     RecursiveMethod(5);&#10;&#125;);</span><br></pre></td></tr></table></figure>
+<ul>
+<li><code>NSRecursiveLock</code>可以允许同一线程多次加锁，而不会造成死锁。递归锁会跟踪它被lock的次数。每次成功的lock都必须平衡调用unlock操作。只有所有达到这种平衡，锁最后才能被释放，以供其它线程使用。</li>
+</ul>
+<p><strong>5.<code>NSConditionLock</code></strong></p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">    NSInteger HasData = 1;&#10;    NSInteger NOData = 2;&#10;    &#10;    ThreadObj *obj = [[ThreadObj alloc] init];&#10;    NSConditionLock *lock = [[NSConditionLock alloc] initWithCondition:NOData];&#10;    &#10;    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^&#123;&#10;        &#10;        NSLog(@&#34;\nCurrent Thread1: %@&#34;,[NSThread currentThread]);&#10;        &#10;        sleep(1);&#10;        &#10;        [lock lockWhenCondition:NOData];&#10;        NSLog(@&#34;&#20889;&#20837;&#25968;&#25454;&#34;);&#10;        obj.name = @&#34;123&#34;;&#10;        [lock unlockWithCondition:HasData];&#10;    &#125;);&#10;    &#10;dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^&#123;&#10;&#10;        NSLog(@&#34;\nCurrent Thread2: %@&#34;,[NSThread currentThread]);&#10;&#10;        [lock lockWhenCondition:HasData];&#10;        NSLog(@&#34;&#35835;&#21462;&#25968;&#25454; obj.name:%@&#34;,obj.name);&#10;        [lock unlockWithCondition:NOData];&#10;    &#125;);</span><br></pre></td></tr></table></figure>
+<ul>
+<li><code>NSConditionLock</code> 是在 <code>NSLock</code> 的基础上增加了条件参数，对每个方法都扩展了一个带一个 <code>NSInteger</code>参数作为条件的方法，初始化的时候需要指定一个默认的条件；</li>
+<li><code>lockWhenCondition:</code>条件与当前锁内设置的<code>condition</code>属性相同时程序线程才会进入锁内的代码，并把锁关上；</li>
+<li><code>unlockWithCondition:</code>解锁，并设置新的<code>condition</code>值；</li>
+</ul>
+<p><strong>6.<code>NSCondition</code></strong></p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#9;ThreadObj *obj = [[ThreadObj alloc] init];&#10;    NSCondition *lock = [[NSCondition alloc] init];&#10;    &#10;    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^&#123;&#10;        &#10;        NSLog(@&#34;Thread1: %@&#34;,[NSThread currentThread]);&#10;        &#10;        sleep(1);   // &#26242;&#20572;1&#31186;&#30830;&#20445;&#20854;&#20182;&#32447;&#31243;&#20808;&#25191;&#34892; lock&#10;        &#10;        [lock lock];&#10;        NSLog(@&#34;&#20889;&#20837;&#25968;&#25454;&#34;);&#10;        obj.name = @&#34;123&#34;;&#10;        [lock broadcast];&#10;        [lock unlock];&#10;    &#10;        NSLog(@&#34;&#32447;&#31243;1&#24050;&#25191;&#34892;&#23436;&#27605;&#34;);&#10;    &#125;);&#10;    &#10;    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^&#123;&#10;&#10;        NSLog(@&#34;Thread2: %@&#34;,[NSThread currentThread]);&#10;&#10;        [lock lock];&#10;        NSLog(@&#34;&#32447;&#31243;2&#24050;&#19978;&#38145;&#34;);&#10;        [lock wait];&#10;        NSLog(@&#34;&#32447;&#31243;2&#35835;&#21462;&#25968;&#25454; obj.name:%@&#34;,obj.name);&#10;        [lock unlock];&#10;    &#125;);&#10;    &#10;    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^&#123;&#10;        &#10;        NSLog(@&#34;Thread3: %@&#34;,[NSThread currentThread]);&#10;        &#10;        [lock lock];&#10;        NSLog(@&#34;&#32447;&#31243;3&#24050;&#19978;&#38145;&#34;);&#10;        [lock wait];&#10;        NSLog(@&#34;&#32447;&#31243;3&#35835;&#21462;&#25968;&#25454; obj.name:%@&#34;,obj.name);&#10;        [lock unlock];&#10;    &#125;);&#10;&#10;// &#25191;&#34892;&#32467;&#26524;&#10;2018-08-09 16:14:25.985862+0800 ThreadTest[66941:3499101] Thread1: &#60;NSThread: 0x60000046be00&#62;&#123;number = 3, name = (null)&#125;&#10;2018-08-09 16:14:25.985864+0800 ThreadTest[66941:3499105] Thread2: &#60;NSThread: 0x60000046bd40&#62;&#123;number = 4, name = (null)&#125;&#10;2018-08-09 16:14:25.985863+0800 ThreadTest[66941:3499103] Thread3: &#60;NSThread: 0x60400026de00&#62;&#123;number = 5, name = (null)&#125;&#10;2018-08-09 16:14:25.986077+0800 ThreadTest[66941:3499105] &#32447;&#31243;2&#24050;&#19978;&#38145;&#10;2018-08-09 16:14:25.986277+0800 ThreadTest[66941:3499103] &#32447;&#31243;3&#24050;&#19978;&#38145;&#10;2018-08-09 16:14:26.990665+0800 ThreadTest[66941:3499101] &#20889;&#20837;&#25968;&#25454;&#10;2018-08-09 16:14:26.991010+0800 ThreadTest[66941:3499101] &#32447;&#31243;1&#24050;&#25191;&#34892;&#23436;&#27605;&#10;2018-08-09 16:14:26.991019+0800 ThreadTest[66941:3499103] &#32447;&#31243;3&#35835;&#21462;&#25968;&#25454; obj.name:123&#10;2018-08-09 16:14:26.991276+0800 ThreadTest[66941:3499105] &#32447;&#31243;2&#35835;&#21462;&#25968;&#25454; obj.name:123</span><br></pre></td></tr></table></figure>
+<ul>
+<li>NSCondition 允许多个线程同时加锁，从上面可以看出来线程2，3同时都加锁了并且都在<code>wait</code>；</li>
+<li>NSCondition 多了 <code>wait</code>，<code>signal</code>两个方法，用于线程控制，当执行<code>wait</code>的时候会阻塞当前线程，执行<code>sigin</code>通知被阻塞的线程继续执行；</li>
+<li>注意：同时有多个线程都在<code>wait</code>，可以通过调用<code>[lock broadcast]</code>方法，通知所有<code>wait</code>中线程继续执行；</li>
+</ul>
+<p><strong>7.<code>pthread_mutex_t</code></strong></p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ThreadObj *obj = [[ThreadObj alloc] init];&#10;  &#10;   __block pthread_mutex_t mutex;  // &#22768;&#26126;&#21464;&#37327;&#10;   pthread_mutex_init(&#38;mutex, NULL);   // &#21021;&#22987;&#21270;&#10;   &#10;   dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^&#123;&#10;       &#10;       NSLog(@&#34;Thread1: %@&#34;,[NSThread currentThread]);&#10;       &#10;       pthread_mutex_lock(&#38;mutex);&#10;       NSLog(@&#34;&#20889;&#20837;&#25968;&#25454;&#34;);&#10;       obj.name = @&#34;123&#34;;&#10;       pthread_mutex_unlock(&#38;mutex);&#10;   &#10;       NSLog(@&#34;&#32447;&#31243;1&#24050;&#25191;&#34892;&#23436;&#27605;&#34;);&#10;   &#125;);&#10;   &#10;   dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^&#123;&#10;&#10;       NSLog(@&#34;Thread2: %@&#34;,[NSThread currentThread]);&#10;&#10;       sleep(1);&#10;       pthread_mutex_lock(&#38;mutex);&#10;       NSLog(@&#34;&#32447;&#31243;2&#24050;&#19978;&#38145;&#34;);&#10;       NSLog(@&#34;&#32447;&#31243;2&#35835;&#21462;&#25968;&#25454; obj.name:%@&#34;,obj.name);&#10;       pthread_mutex_unlock(&#38;mutex);&#10;   &#125;);&#10;   &#10;   dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^&#123;&#10;       &#10;       NSLog(@&#34;Thread3: %@&#34;,[NSThread currentThread]);&#10;       &#10;       sleep(1);&#10;       pthread_mutex_lock(&#38;mutex);&#10;       NSLog(@&#34;&#32447;&#31243;3&#24050;&#19978;&#38145;&#34;);&#10;       NSLog(@&#34;&#32447;&#31243;3&#35835;&#21462;&#25968;&#25454; obj.name:%@&#34;,obj.name);&#10;       pthread_mutex_unlock(&#38;mutex);&#10;   &#125;);</span><br></pre></td></tr></table></figure>
+<ul>
+<li>POSIX线程（POSIX threads），简称Pthreads，是线程的POSIX标准。该标准定义了创建和操纵线程的一整套API。在类Unix操作系统（Unix、Linux、Mac OS X等）中，都使用Pthreads作为操作系统的线程。Windows操作系统也有其移植版pthreads-win32;</li>
+<li><code>pthread_mutex_init()</code> 初始化互斥锁;</li>
+<li><code>pthread_mutex_lock()</code>：占有互斥锁（阻塞操作）;</li>
+<li><code>pthread_mutex_trylock()</code>：试图占有互斥锁（不阻塞操作）。即，当互斥锁空闲时，将占有该锁；否则，立即返回。</li>
+<li><code>pthread_mutex_unlock()</code>: 释放互斥锁;</li>
+<li><code>pthread_mutex_destroy()</code> 删除互斥锁</li>
+</ul>
+<p><strong>8.<code>OSSpinLock</code></strong></p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">__block OSSpinLock theLock = OS_SPINLOCK_INIT;&#10;dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^&#123;&#10;    OSSpinLockLock(&#38;theLock);&#10;    NSLog(@&#34;&#38656;&#35201;&#32447;&#31243;&#21516;&#27493;&#30340;&#25805;&#20316;1 &#24320;&#22987;&#34;);&#10;    sleep(3);&#10;    NSLog(@&#34;&#38656;&#35201;&#32447;&#31243;&#21516;&#27493;&#30340;&#25805;&#20316;1 &#32467;&#26463;&#34;);&#10;    OSSpinLockUnlock(&#38;theLock);&#10;&#125;);&#10;dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^&#123;&#10;    OSSpinLockLock(&#38;theLock);&#10;    sleep(1);&#10;    NSLog(@&#34;&#38656;&#35201;&#32447;&#31243;&#21516;&#27493;&#30340;&#25805;&#20316;2&#34;);&#10;    OSSpinLockUnlock(&#38;theLock);&#10;&#125;);</span><br></pre></td></tr></table></figure>
+<ul>
+<li>OSSpinLock 自旋锁，性能最高的锁。原理很简单，就是一直 do while 忙等。它的缺点是当等待时会消耗大量 CPU 资源，所以它不适用于较长时间的任务。 </li>
+<li>此锁已经被放弃，因为会引起 线程优先级反转，导致线程混乱或造成资源大量浪费；</li>
+<li>何谓自旋锁？对于互斥锁，如果资源已经被占用，资源申请者只能进入睡眠状态。但是自旋锁不会引起调用者睡眠，如果自旋锁已经被别的执行单元保持，调用者就一直循环在那里看是否该自旋锁的保持者已经释放了锁，”自旋”一词就是因此而得名。</li>
+</ul>
+<p><strong>9.<code>os_unfair_lock</code></strong></p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ThreadObj *obj = [[ThreadObj alloc] init];&#10;   __block os_unfair_lock _unfairLock;&#10;   &#10;   dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^&#123;&#10;       &#10;       NSLog(@&#34;Thread1: %@&#34;,[NSThread currentThread]);&#10;       &#10;       os_unfair_lock_lock(&#38;_unfairLock);&#10;       NSLog(@&#34;&#20889;&#20837;&#25968;&#25454;&#34;);&#10;       obj.name = @&#34;123&#34;;&#10;       NSLog(@&#34;&#32447;&#31243;1&#24050;&#25191;&#34892;&#23436;&#27605;&#34;);&#10;       os_unfair_lock_unlock(&#38;_unfairLock);&#10;   &#125;);</span><br></pre></td></tr></table></figure>
+<ul>
+<li>iOS 10苹果新增加的锁，替换已废弃的OSSpinLock，解决优先级倒置问题，但是性能比较低，优先考虑pthread或dispatch；</li>
+</ul>
+<p><strong>性能对比</strong></p>
+<p>对以上各个锁进行1000000此的加锁解锁的空操作时间如下：</p>
+<figure class="highlight crmsh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">OSSpinLock: <span class="number">46.15</span> <span class="keyword">ms</span></span><br><span class="line"><span class="title">dispatch_semaphore</span>: <span class="number">56.50</span> <span class="keyword">ms</span></span><br><span class="line"><span class="title">pthread_mutex</span>: <span class="number">178.28</span> <span class="keyword">ms</span></span><br><span class="line"><span class="title">NSCondition</span>: <span class="number">193.38</span> <span class="keyword">ms</span></span><br><span class="line"><span class="title">NSLock</span>: <span class="number">175.02</span> <span class="keyword">ms</span></span><br><span class="line"><span class="title">pthread_mutex</span>(recursive): <span class="number">172.56</span> <span class="keyword">ms</span></span><br><span class="line"><span class="title">NSRecursiveLock</span>: <span class="number">157.44</span> <span class="keyword">ms</span></span><br><span class="line"><span class="title">NSConditionLock</span>: <span class="number">490.04</span> <span class="keyword">ms</span></span><br><span class="line"><span class="title">@synchronized</span>: <span class="number">371.17</span> ms</span><br></pre></td></tr></table></figure>
+<p>鉴于<code>OSSpinLock</code>的不安全，所以我们在开发中如果考虑性能的话，建议使用<code>dispatch_semaphore</code>。</p>
+
+      
+    </div>
+    <footer>
+      
+        
+        
+        
+  <div class="addthis addthis_toolbox addthis_default_style">
+    
+      <a class="addthis_button_facebook_like" fb:like:layout="button_count"></a>
+    
+    
+      <a class="addthis_button_tweet"></a>
+    
+    
+      <a class="addthis_button_google_plusone" g:plusone:size="medium"></a>
+    
+    
+      <a class="addthis_button_pinterest_pinit" pi:pinit:layout="horizontal"></a>
+    
+    <a class="addthis_counter addthis_pill_style"></a>
+  </div>
+  <script type="text/javascript" src="//s7.addthis.com/js/300/addthis_widget.js"></script>
+
+      
+      <div class="clearfix"></div>
+    </footer>
+  </div>
+</article>
+
+
+<section id="comment">
+  <h1 class="title">留言</h1>
+
+  
+      <div id="fb-root"></div>
+<script>
+  (function(d, s, id) {
+    var js, fjs = d.getElementsByTagName(s)[0];
+    if (d.getElementById(id)) return;
+    js = d.createElement(s); js.id = id;
+    js.src = "//connect.facebook.net/en_US/all.js#xfbml=1&appId=123456789012345";
+    fjs.parentNode.insertBefore(js, fjs);
+  }(document, 'script', 'facebook-jssdk'));
+</script>
+
+<div class="fb-comments" data-href="http://xiaohuapunk.github.io/2017/08/08/线程安全/index.html" data-num-posts="5" data-width="840" data-colorscheme="light"></div>
+      
+  
+</section>
+
+</div></div>
+    <aside id="sidebar" class="alignright">
+  <div class="search">
+  <form action="//google.com/search" method="get" accept-charset="utf-8">
+    <input type="search" name="q" results="0" placeholder="搜索">
+    <input type="hidden" name="q" value="site:xiaohuapunk.github.io">
+  </form>
+</div>
+
+  
+<div class="widget tag">
+  <h3 class="title">分类</h3>
+  <ul class="entry">
+  
+    <li><a href="/categories/PHP/">PHP</a><small>1</small></li>
+  
+    <li><a href="/categories/iOS/">iOS</a><small>6</small></li>
+  
+    <li><a href="/categories/tools/">tools</a><small>2</small></li>
+  
+    <li><a href="/categories/web前端/">web前端</a><small>1</small></li>
+  
+    <li><a href="/categories/教程/">教程</a><small>2</small></li>
+  
+  </ul>
+</div>
+
+
+  
+<div class="widget tag">
+  <h3 class="title">标签</h3>
+  <ul class="entry">
+  
+    <li><a href="/tags/JSPatch/">JSPatch</a><small>1</small></li>
+  
+    <li><a href="/tags/Swift/">Swift</a><small>2</small></li>
+  
+    <li><a href="/tags/Vue/">Vue</a><small>1</small></li>
+  
+    <li><a href="/tags/iOS/">iOS</a><small>5</small></li>
+  
+    <li><a href="/tags/教程/">教程</a><small>1</small></li>
+  
+    <li><a href="/tags/经验/">经验</a><small>1</small></li>
+  
+    <li><a href="/tags/经验分享/">经验分享</a><small>1</small></li>
+  
+  </ul>
+</div>
+
+</aside>
+    <div class="clearfix"></div>
+  </div>
+  <footer id="footer" class="inner"><div class="alignleft">
+  
+  &copy; 2018 xiaohuapunk
+  
+</div>
+<div class="clearfix"></div></footer>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+(function($){
+  $('.fancybox').fancybox();
+})(jQuery);
+</script>
+
+</body>
+</html>

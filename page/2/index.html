@@ -55,6 +55,281 @@
     <header>
       
         <div class="icon"></div>
+        <time datetime="2015-11-02T06:43:42.000Z"><a href="/2015/11/02/Swift-Tip/">2015-11-02</a></time>
+      
+      
+  
+    <h1 class="title"><a href="/2015/11/02/Swift-Tip/">Swift-Tip</a></h1>
+  
+
+    </header>
+    <div class="entry">
+      
+        <p>Swift开发必备tip</p>
+      
+    </div>
+    <footer>
+      
+        
+          <div class="alignleft">
+            <a href="/2015/11/02/Swift-Tip/#more" class="more-link">Read More</a>
+          </div>
+        
+        
+      
+      <div class="clearfix"></div>
+    </footer>
+  </div>
+</article>
+
+
+
+
+  <article class="post">
+  
+  <div class="post-content">
+    <header>
+      
+        <div class="icon"></div>
+        <time datetime="2015-10-30T09:14:34.000Z"><a href="/2015/10/30/Alcatraz/">2015-10-30</a></time>
+      
+      
+  
+    <h1 class="title"><a href="/2015/10/30/Alcatraz/">Alcatraz install</a></h1>
+  
+
+    </header>
+    <div class="entry">
+      
+        <p>Alcatrza 插件管理工具的安装、与修复</p>
+      
+    </div>
+    <footer>
+      
+        
+          <div class="alignleft">
+            <a href="/2015/10/30/Alcatraz/#more" class="more-link">Read More</a>
+          </div>
+        
+        
+      
+      <div class="clearfix"></div>
+    </footer>
+  </div>
+</article>
+
+
+
+
+  <article class="post">
+  
+  <div class="post-content">
+    <header>
+      
+        <div class="icon"></div>
+        <time datetime="2015-10-11T02:35:00.000Z"><a href="/2015/10/11/iOS-General/">2015-10-11</a></time>
+      
+      
+  
+    <h1 class="title"><a href="/2015/10/11/iOS-General/">iOS General</a></h1>
+  
+
+    </header>
+    <div class="entry">
+      
+        <p>大纲<br>
+      
+    </div>
+    <footer>
+      
+        
+          <div class="alignleft">
+            <a href="/2015/10/11/iOS-General/#more" class="more-link">Read More</a>
+          </div>
+        
+        
+      
+      <div class="clearfix"></div>
+    </footer>
+  </div>
+</article>
+
+
+
+
+  <article class="post">
+  
+  <div class="post-content">
+    <header>
+      
+        <div class="icon"></div>
+        <time datetime="2015-01-20T07:06:45.000Z"><a href="/2015/01/20/development-tool/">2015-01-20</a></time>
+      
+      
+  
+    <h1 class="title"><a href="/2015/01/20/development-tool/">开发必备工具</a></h1>
+  
+
+    </header>
+    <div class="entry">
+      
+        <p>日常开发常用工具</p>
+      
+    </div>
+    <footer>
+      
+        
+          <div class="alignleft">
+            <a href="/2015/01/20/development-tool/#more" class="more-link">Read More</a>
+          </div>
+        
+        
+      
+      <div class="clearfix"></div>
+    </footer>
+  </div>
+</article>
+
+
+
+
+  <article class="post">
+  
+  <div class="post-content">
+    <header>
+      
+        <div class="icon"></div>
+        <time datetime="2014-05-14T07:29:33.000Z"><a href="/2014/05/14/copy/">2014-05-14</a></time>
+      
+      
+  
+    <h1 class="title"><a href="/2014/05/14/copy/">copy</a></h1>
+  
+
+    </header>
+    <div class="entry">
+      
+        <h3 id="对不可变非集合类型进行_copy_和_mutableCopy">对不可变非集合类型进行 copy 和 mutableCopy</h3><figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">NSString *string = @&#34;copyTest&#34;;&#10;NSString *copyString = [string copy];&#10;NSString *mutableCopyString = [string mutableCopy];&#10;NSMutableString *copyMutableString = [string copy];&#10;NSMutableString *mutableCopyMutableString = [string mutableCopy];&#10;NSLog(@&#34;\n string = %p \n copystring = %p \n mutablecopystring = %p &#34;&#10;          &#34;\n copyMutableString = %p \n mutableCopyMutableString = %p \n&#34;,string, copyString, mutableCopyString, copyMutableString, mutableCopyMutableString);&#10;/*          &#10; string = 0x108f15288 &#10; copystring = 0x108f15288 &#10; mutablecopystring = 0x600000440ea0 &#10; copyMutableString = 0x108f15288 &#10; mutableCopyMutableString = 0x600000440e10&#10; */</span><br></pre></td></tr></table></figure>
+<p>结论：</p>
+<ul>
+<li>对<code>不可变类型</code>进行<code>copy</code> 是执行的<strong>浅拷贝</strong>只拷贝指针</li>
+<li>对<code>不可变类型</code>进行 <code>mutableCopy</code> 是执行<strong>深拷贝</strong>并且返回的是 <code>可变类型</code></li>
+<li><code>copy</code>或<code>mutableCopy</code>返回的对象与类型声明无关</li>
+</ul>
+<p>证明 mutableCopy 返回的是可变类型，且与声明的类型无关</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">NSString *str = @&#34;123&#34;;&#10;   NSString *mutableStr = [str mutableCopy];&#10;   &#10;   if ([mutableStr isKindOfClass:[NSMutableString class]]) &#123;&#10;       [(NSMutableString *)mutableStr appendString:@&#34;321&#34;];&#10;   &#125;&#10;   &#10;   NSLog(@&#34;str:%p %@ mutableStr:%p %@&#34;,str,str,mutableStr,mutableStr);&#10;   //        str:0x10c5b7288     123     (&#26632;&#20869;&#23384;)&#10;   // mutableStr:0x60400044c1e0  123321  (&#22534;&#20869;&#23384;)</span><br></pre></td></tr></table></figure>
+<h3 id="对_可变非集合类型_执行_copy_和_mutableCopy">对 可变非集合类型 执行 copy 和 mutableCopy</h3><figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">NSMutableString *string = [NSMutableString stringWithString:@&#34;&#23398;&#20064;&#30740;&#31350;&#34;];&#10;NSString *copyString = [string copy];&#10;NSString *mutableCopyString = [string mutableCopy];&#10;NSMutableString *copyMutableString = [string copy];&#10;NSMutableString *mutableCopyMutableString = [string mutableCopy];&#10;NSLog(@&#34;\n string = %p \n copystring = %p \n mutablecopystring = %p &#34; &#34;\n copyMutableString = %p \n mutableCopyMutableString = %p \n&#34;,string, copyString, mutableCopyString, copyMutableString, mutableCopyMutableString);&#10;/*&#10; string = 0x6000002490f0 &#10; copystring = 0x6000002212c0 &#10; mutablecopystring = 0x600000248fd0 &#10; copyMutableString = 0x600000221140 &#10; mutableCopyMutableString = 0x600000249120&#10;*/</span><br></pre></td></tr></table></figure>
+<ul>
+<li>对可变类型进行<code>copy</code>操作执行的是<strong>深拷贝</strong>返回的是<strong>不可变类型</strong></li>
+<li>对可变类型进行<code>mutableCopy</code>执行的是<strong>深拷贝</strong>返回的是<strong>可变类型</strong></li>
+</ul>
+<p>证明 copy 返回的是 不可变类型</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">NSMutableString *string = [NSMutableString stringWithString:@&#34;&#23398;&#20064;&#30740;&#31350;&#34;];&#10;NSMutableString *copyString = [string copy];&#10;[copyString appendString:@&#34;123&#34;];&#10;// *** Terminating app due to uncaught exception &#39;NSInvalidArgumentException&#39;, reason: &#39;Attempt to mutate immutable object with appendString:&#39;</span><br></pre></td></tr></table></figure>
+<h3 id="对集合类型执行_copy_和_mutableCopy">对集合类型执行 copy 和 mutableCopy</h3><figure class="highlight less"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr_selector">[immutableObject copy]</span> <span class="comment">// 浅复制</span></span><br><span class="line"><span class="attr_selector">[immutableObject mutableCopy]</span> <span class="comment">//单层深复制</span></span><br><span class="line"><span class="attr_selector">[mutableObject copy]</span> <span class="comment">//单层深复制</span></span><br><span class="line"><span class="attr_selector">[mutableObject mutableCopy]</span> <span class="comment">//单层深复制</span></span><br></pre></td></tr></table></figure>
+<ul>
+<li>对不可变集合类型 NSArray、NSSet 等执行 copy 是<strong>浅拷贝</strong>；</li>
+<li>对不可变集合类型 NSArray、NSSet 等执行 mutableCopy 是<strong>深拷贝一层</strong>，集合内对象是浅拷贝；</li>
+<li>对可变集合类型执行 copy,mutableCopy都是深拷贝一层，<strong>mutableCopy 返回的是可变类型</strong>；</li>
+</ul>
+<h3 id="自定义类型实现_copy_与_mutableCopy">自定义类型实现 copy 与 mutableCopy</h3><ul>
+<li>遵循<code>NSCopying</code> 或 <code>NSMutableCopying</code> 协议</li>
+<li>实现<code>copyWithZone</code> 或 <code>mutableCopyWithZone</code></li>
+</ul>
+<p>mutableCopyWithZone和copyWithZone: 一样是个待实现的方法，关键的区别在于内部实现的区别。通常，copyWithZone: 做自定义对象的单层拷贝处理（有容器嵌套的化，只copy最外一层）。mutableCopyWithZone: 做自定义对象的完全拷贝处理（有容器嵌套的化，容器中每一层对象都做拷贝处理）。</p>
+
+      
+    </div>
+    <footer>
+      
+        
+        
+      
+      <div class="clearfix"></div>
+    </footer>
+  </div>
+</article>
+
+
+
+
+  <article class="post">
+  
+  <div class="post-content">
+    <header>
+      
+        <div class="icon"></div>
+        <time datetime="2013-10-28T09:28:03.000Z"><a href="/2013/10/28/Hexo/">2013-10-28</a></time>
+      
+      
+  
+    <h1 class="title"><a href="/2013/10/28/Hexo/">使用Hexo写博客</a></h1>
+  
+
+    </header>
+    <div class="entry">
+      
+        <p>本文介绍了Hexo安装教程及简单使用方法</p>
+      
+    </div>
+    <footer>
+      
+        
+          <div class="alignleft">
+            <a href="/2013/10/28/Hexo/#more" class="more-link">Read More</a>
+          </div>
+        
+        
+      
+      <div class="clearfix"></div>
+    </footer>
+  </div>
+</article>
+
+
+
+
+  <article class="post">
+  
+  <div class="post-content">
+    <header>
+      
+        <div class="icon"></div>
+        <time datetime="2013-10-16T08:03:28.000Z"><a href="/2013/10/16/iOS沙盒机制/">2013-10-16</a></time>
+      
+      
+  
+    <h1 class="title"><a href="/2013/10/16/iOS沙盒机制/">iOS沙盒机制</a></h1>
+  
+
+    </header>
+    <div class="entry">
+      
+        <p>出于安全考虑，iOS系统会为每个App分配一个存储空间（sandbox）即沙盒，App中的所有数据都存放在沙盒目录中，每个App的沙盒都是相互独立，相互之间不能直接访问；</p>
+      
+    </div>
+    <footer>
+      
+        
+          <div class="alignleft">
+            <a href="/2013/10/16/iOS沙盒机制/#more" class="more-link">Read More</a>
+          </div>
+        
+        
+      
+      <div class="clearfix"></div>
+    </footer>
+  </div>
+</article>
+
+
+
+
+  <article class="post">
+  
+  <div class="post-content">
+    <header>
+      
+        <div class="icon"></div>
         <time datetime="2013-10-12T06:11:55.000Z"><a href="/2013/10/12/CreateGithubPages/">2013-10-12</a></time>
       
       
@@ -108,7 +383,7 @@
   
     <li><a href="/categories/PHP/">PHP</a><small>1</small></li>
   
-    <li><a href="/categories/iOS/">iOS</a><small>5</small></li>
+    <li><a href="/categories/iOS/">iOS</a><small>6</small></li>
   
     <li><a href="/categories/tools/">tools</a><small>2</small></li>
   
@@ -131,7 +406,7 @@
   
     <li><a href="/tags/Vue/">Vue</a><small>1</small></li>
   
-    <li><a href="/tags/iOS/">iOS</a><small>2</small></li>
+    <li><a href="/tags/iOS/">iOS</a><small>5</small></li>
   
     <li><a href="/tags/教程/">教程</a><small>1</small></li>
   
